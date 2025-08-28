@@ -414,11 +414,23 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Enviando aviso:', avisoData);
         
                         try {
-                    // Obter token de autenticação do localStorage
-                    const isLoggedIn = localStorage.getItem('isLoggedIn');
-                    const userRole = localStorage.getItem('userRole');
+                    // Função para obter cookies
+                    function getCookie(name) {
+                        const nameEQ = name + "=";
+                        const ca = document.cookie.split(';');
+                        for (let i = 0; i < ca.length; i++) {
+                            let c = ca[i];
+                            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                        }
+                        return null;
+                    }
                     
-                    if (isLoggedIn !== 'true' || userRole !== 'admin') {
+                    // Obter token de autenticação dos cookies
+                    const sessionToken = getCookie('session_token');
+                    const userRole = getCookie('user_role');
+                    
+                    if (!sessionToken || userRole !== 'admin') {
                         mostrarErro('Usuário não autenticado');
                         return;
                     }
@@ -427,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('userId') // Usar userId como token simples
+                            'Authorization': 'Bearer ' + sessionToken
                         },
                         body: JSON.stringify(avisoData)
                     });

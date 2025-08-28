@@ -42,9 +42,8 @@ function unique_affiliate_code($conn, $tries = 50) {
         }
         $stmt->close();
     }
-    // Se ainda não encontrou um código único após 50 tentativas, 
-    // continuar tentando com sleep para evitar loop apertado
-    while (true) {
+    // Se ainda não encontrou após 50 tentativas, tentar mais 500 vezes com sleep
+    for ($j=0; $j<500; $j++) {
         $code = gen_affiliate_code();
         $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
         $stmt->bind_param("s", $code);
@@ -57,6 +56,9 @@ function unique_affiliate_code($conn, $tries = 50) {
         $stmt->close();
         usleep(10000); // 10ms sleep para evitar loop muito apertado
     }
+    
+    // Se ainda não conseguiu após 550 tentativas total, retornar erro
+    throw new Exception("Não foi possível gerar um código de afiliado único após múltiplas tentativas. Espaço de códigos pode estar saturado.");
 }
 
 $action = $_GET['action'] ?? '';

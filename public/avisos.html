@@ -233,10 +233,41 @@
         return;
       }
       
-      // Atualizar display do username
-      if (username) {
-        document.getElementById('username-display').textContent = username;
-      }
+      // Validar sessão no servidor
+      fetch('/backend/api.php?action=validateSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_token: sessionToken
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          // Sessão inválida, limpar cookies e redirecionar
+          deleteCookie('session_token');
+          deleteCookie('user_role');
+          deleteCookie('user_id');
+          deleteCookie('username');
+          localStorage.clear();
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        // Sessão válida, atualizar display do username
+        if (data.user && data.user.username) {
+          document.getElementById('username-display').textContent = data.user.username;
+        } else if (username) {
+          document.getElementById('username-display').textContent = username;
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao validar sessão:', error);
+        // Em caso de erro, redirecionar para login por segurança
+        window.location.href = 'login.html';
+      });
       
       // Botão de logout
       document.getElementById('logout-btn').addEventListener('click', function() {
