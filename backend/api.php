@@ -22,15 +22,14 @@ function uuidv4() {
         mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
     );
 }
-function gen_affiliate_code($len = 8) {
-    $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function gen_affiliate_code($len = 4) {
     $code = '';
     for ($i=0; $i < $len; $i++) {
-        $code .= $chars[random_int(0, strlen($chars)-1)];
+        $code .= random_int(0, 9);
     }
     return $code;
 }
-function unique_affiliate_code($conn, $tries = 5) {
+function unique_affiliate_code($conn, $tries = 50) {
     for ($i=0; $i<$tries; $i++) {
         $code = gen_affiliate_code();
         $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
@@ -43,8 +42,23 @@ function unique_affiliate_code($conn, $tries = 5) {
         }
         $stmt->close();
     }
-    // fallback with timestamp
-    return gen_affiliate_code(6) . substr((string)time(), -2);
+    // Se ainda não encontrou após 50 tentativas, tentar mais 50 vezes com sleep
+    for ($j=0; $j<50; $j++) {
+        $code = gen_affiliate_code();
+        $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
+        $stmt->bind_param("s", $code);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows === 0) {
+            $stmt->close();
+            return $code;
+        }
+        $stmt->close();
+        usleep(10000); // 10ms sleep para evitar loop muito apertado
+    }
+    
+    // Se ainda não conseguiu após 100 tentativas total, retornar erro
+    throw new Exception("Não foi possível gerar um código de afiliado único após múltiplas tentativas. Espaço de códigos pode estar saturado.");
 }
 
 $action = $_GET['action'] ?? '';
@@ -132,7 +146,13 @@ switch ($action) {
 
         // Gera ID e affiliate_code únicos
         $id = uuidv4();
-        $affiliate_code = unique_affiliate_code($conn);
+        
+        try {
+            $affiliate_code = unique_affiliate_code($conn);
+        } catch (Exception $e) {
+            echo json_encode(['success'=>false, 'error'=>'Não foi possível gerar um código de afiliado único. Tente novamente ou contate o administrador.']);
+            break;
+        }
 
         $stmt = $conn->prepare("INSERT INTO users (id, username, email, password, credits, role, status, plan, affiliate_code, telegram_id, telegram_username, ip) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
         $stmt->bind_param("ssssisssssss", $id, $username, $email, $password_hash, $credits, $role, $status, $plan, $affiliate_code, $telegram_id, $telegram_username, $ip);
@@ -484,27 +504,29 @@ switch ($action) {
             
             $id = uuidv4();
             
-            // Usar o ID do usuário logado (vem do header Authorization)
+            // Validar token de sessão do usuário logado
             $headers = getallheaders();
             $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
             
             if (strpos($authHeader, 'Bearer ') === 0) {
-                $token = substr($authHeader, 7);
-                // Por enquanto, vamos buscar o primeiro admin disponível
-                // Em uma implementação real, você validaria o token JWT
-                $adminStmt = $conn->prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1");
-                $adminStmt->execute();
-                $adminResult = $adminStmt->get_result();
+                $session_token = substr($authHeader, 7);
                 
-                if ($adminResult->num_rows > 0) {
-                    $admin = $adminResult->fetch_assoc();
-                    $admin_id = $admin['id'];
+                // Validar session_token no banco de dados
+                $sessionStmt = $conn->prepare("SELECT u.id FROM user_sessions us JOIN users u ON u.id = us.user_id WHERE us.session_token = ? AND us.expires_at > NOW() AND u.status = 'active' AND u.role = 'admin' LIMIT 1");
+                $sessionStmt->bind_param("s", $session_token);
+                $sessionStmt->execute();
+                $sessionResult = $sessionStmt->get_result();
+                
+                if ($sessionResult->num_rows > 0) {
+                    $user = $sessionResult->fetch_assoc();
+                    $admin_id = $user['id'];
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Nenhum usuário admin encontrado no sistema']);
+                    echo json_encode(['success' => false, 'message' => 'Token de autenticação inválido ou expirado']);
+                    $sessionStmt->close();
                     break;
                 }
                 
-                $adminStmt->close();
+                $sessionStmt->close();
             } else {
                 echo json_encode(['success' => false, 'message' => 'Token de autenticação não fornecido']);
                 break;
