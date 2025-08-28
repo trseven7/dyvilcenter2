@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DYVIL CENTER - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="matrix-bg">
+    <div class="login-container">
+        <div class="login-card glass-effect">
+            <div class="login-header">
+                <div class="logo-container">
+                    <i class="fas fa-cube logo-icon"></i>
+                    <h1 class="logo-text">DYVIL</h1>
+                </div>
+                <p class="login-subtitle">CENTER</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="label">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="label">
+                        <i class="fas fa-lock"></i>
+                        Senha
+                    </label>
+                    <input type="password" id="password" name="password" class="form-input" required>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+            </form>
+            
+            <div id="errorMessage" class="error-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="errorText"></span>
+            </div>
+        </div>
+        
+        <div class="matrix-particles"></div>
+        <div class="logo-text-background">DYVIL<br>CENTER</div>
+    </div>
+    
+    <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avisos - Dyvil Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/avisos.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <header class="topbar card">
+      <h1>Dyvil Center — Avisos</h1>
+      <div class="header-actions">
+        <span id="username-display" class="username-display">Admin</span>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </header>
+
+    <nav class="horizontal-nav card">
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-item"><i class="fas fa-users"></i> Usuários</a></li>
+        <li><a href="avisos.html" class="nav-item active"><i class="fas fa-bullhorn"></i> Avisos</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-laptop-code"></i> Serviços</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
+      </ul>
+    </nav>
+
+    <!-- Dashboard de Avisos -->
+    <section class="dashboard-avisos card">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-bullhorn"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Total de Avisos</h3>
+            <p id="total-avisos">0</p>
+          </div>
+        </div>
+        
+        <div class="stat-card high-priority">
+          <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Alta Prioridade</h3>
+            <p id="alta-prioridade">0</p>
+          </div>
+        </div>
+        
+        <div class="stat-card pinned">
+          <div class="stat-icon">
+            <i class="fas fa-thumbtack"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Avisos Fixados</h3>
+            <p id="avisos-fixados">0</p>
+          </div>
+        </div>
+        
+        <div class="stat-card views">
+          <div class="stat-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Total de Views</h3>
+            <p id="total-views">0</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filtros -->
+    <section class="filtros card">
+      <div class="filtros-container">
+        <button class="filtro-btn active" data-filtro="todos">
+          <i class="fas fa-list"></i> Todos
+        </button>
+        <button class="filtro-btn" data-filtro="fixados">
+          <i class="fas fa-thumbtack"></i> Fixados
+        </button>
+        <button class="filtro-btn" data-filtro="alta">
+          <i class="fas fa-exclamation-triangle"></i> Alta Prioridade
+        </button>
+        <button class="filtro-btn" data-filtro="media">
+          <i class="fas fa-exclamation-circle"></i> Média Prioridade
+        </button>
+        <button class="filtro-btn" data-filtro="baixa">
+          <i class="fas fa-info-circle"></i> Baixa Prioridade
+        </button>
+      </div>
+      
+      <div class="categoria-filtro">
+        <select id="filtro-categoria">
+          <option value="todas">Todas as categorias</option>
+          <option value="news">Notícias</option>
+          <option value="update">Atualizações</option>
+          <option value="maintenance">Manutenção</option>
+          <option value="promotion">Promoções</option>
+          <option value="alert">Alertas</option>
+          <option value="other">Outros</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Lista de Avisos -->
+    <section class="lista-avisos card">
+      <div id="loading-avisos" class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Carregando avisos...</p>
+      </div>
+      
+      <div id="lista-avisos-container" class="avisos-container" style="display: none;">
+        <!-- Os avisos serão inseridos aqui via JavaScript -->
+      </div>
+      
+      <div id="sem-avisos" class="sem-avisos" style="display: none;">
+        <i class="fas fa-bullhorn"></i>
+        <p>Nenhum aviso encontrado</p>
+      </div>
+    </section>
+
+    <!-- Modal para criar/editar aviso -->
+    <div id="modal-aviso" class="modal">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h3 id="modal-titulo">Criar Aviso</h3>
+          <button class="close-button" aria-label="Fechar">&times;</button>
+        </div>
+        <form id="form-aviso" class="form-grid">
+          <div class="form-group">
+            <label>Título</label>
+            <input id="aviso-titulo" required>
+          </div>
+          <div class="form-group">
+            <label>Mensagem</label>
+            <textarea id="aviso-mensagem" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="aviso-prioridade" required>
+              <option value="low">Baixa</option>
+              <option value="medium">Média</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="aviso-categoria" required>
+              <option value="news">Notícias</option>
+              <option value="update">Atualizações</option>
+              <option value="maintenance">Manutenção</option>
+              <option value="promotion">Promoções</option>
+              <option value="alert">Alertas</option>
+              <option value="other">Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data de Expiração</label>
+            <input id="aviso-expira" type="datetime-local">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Usuário</label>
+            <select id="aviso-tipo-usuario">
+              <option value="all">Todos</option>
+              <option value="free">Free</option>
+              <option value="pro">Pro</option>
+              <option value="vip">VIP</option>
+            </select>
+          </div>
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" id="aviso-fixado">
+              Fixar aviso
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="cancelar-aviso" class="btn ghost">Cancelar</button>
+            <button type="submit" class="btn primary">
+              <i class="fas fa-save"></i> Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Botão flutuante para criar aviso -->
+    <button id="btn-criar-aviso" class="btn-flutuante">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <script src="js/avisos.js"></script>
+  <script>
+    // Verificação de login
+    document.addEventListener('DOMContentLoaded', function() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const userRole = localStorage.getItem('userRole');
+      const username = localStorage.getItem('username');
+      
+      if (isLoggedIn !== 'true' || userRole !== 'admin') {
+        // Não está logado ou não é admin, redirecionar para login
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Atualizar display do username
+      if (username) {
+        document.getElementById('username-display').textContent = username;
+      }
+      
+      // Botão de logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+    });
+  </script>
+</body>
+</html>

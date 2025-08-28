@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <header class="topbar card">
+      <h1>Dyvil Center — Admin</h1>
+      <div class="header-actions">
+        <span id="username-display" class="username-display">Admin</span>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </header>
+
+    <nav class="horizontal-nav card">
+      <ul class="nav-menu">
+        <li><a href="#" class="nav-item active"><i class="fas fa-users"></i> Usuários</a></li>
+        <li><a href="avisos.html" class="nav-item"><i class="fas fa-bullhorn"></i> Avisos</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-laptop-code"></i> Serviços</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
+      </ul>
+    </nav>
+
+    <section class="controls card">
+      <div class="filters">
+        <input id="buscar-usuarios" placeholder="Buscar (nome, email, Telegram ID, Telegram @)">
+        <select id="filtro-plano">
+          <option value="all">Todos planos</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="vip">VIP</option>
+        </select>
+        <select id="filtro-status">
+          <option value="all">Todos status</option>
+          <option value="active">Ativo</option>
+          <option value="inactive">Inativo</option>
+          <option value="banned">Banido</option>
+        </select>
+        <select id="ordenar-por">
+          <option value="username">Usuário</option>
+          <option value="plan">Plano</option>
+          <option value="credits">Créditos</option>
+          <option value="created_at">Criado em</option>
+        </select>
+        <select id="ordem">
+          <option value="asc">Asc</option>
+          <option value="desc">Desc</option>
+        </select>
+      </div>
+      <button id="btn-criar-usuario" class="btn primary"><i class="fas fa-user-plus"></i> Novo usuário</button>
+    </section>
+
+    <section class="card">
+      <div class="table-wrapper">
+        <table id="tabela-usuarios" class="table matrix">
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Plano</th>
+              <th>Créditos</th>
+              <th>Status</th>
+              <th>IP</th>
+              <th>Telegram ID</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="modal-criar-usuario" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h3>Criar usuário</h3>
+        <button class="close-button" aria-label="Fechar">&times;</button>
+      </div>
+      <form id="form-criar-usuario" class="form-grid">
+        <div class="form-group"><label>Usuário</label><input id="username" required></div>
+        <div class="form-group"><label>Email</label><input autocomplete="username"id="email" type="email"></div>
+        <div class="form-group"><label>Senha</label><input id="password" type="password" required autocomplete="new-password"></div>
+        <div class="form-group"><label>Nível</label>
+          <select id="role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Créditos</label><input id="credits" type="number" value="0" min="0"></div>
+        <div class="form-group"><label>Plano</label>
+          <select id="plan">
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Telegram ID</label><input id="create-telegram-id"></div>
+        <div class="form-group"><label>Telegram @</label><input id="create-telegram-username" placeholder="@usuario"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancelar-criacao-usuario" class="btn ghost">Cancelar</button>
+          <button type="submit" class="btn primary"><i class="fas fa-save"></i> Criar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-editar-usuario" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h3>Editar usuário</h3>
+        <button class="close-button" aria-label="Fechar">&times;</button>
+      </div>
+      <form id="form-editar-usuario" class="form-grid">
+        <input type="hidden" id="edit-user-id">
+        <div class="form-group"><label>Usuário</label><input id="edit-username" required></div>
+        <div class="form-group"><label>Email</label><input autocomplete="username" id="edit-email" type="email"></div>
+        <div class="form-group"><label>Nova senha</label><input id="edit-password" type="password" placeholder="(opcional)" autocomplete="current-password"></div>
+        <div class="form-group"><label>Nível</label>
+          <select id="edit-role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Créditos</label><input id="edit-credits" type="number" min="0"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="edit-status">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+            <option value="banned">Banido</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Plano</label>
+          <select id="edit-plan">
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Telegram ID</label><input id="edit-telegram-id"></div>
+        <div class="form-group"><label>Telegram @</label><input id="edit-telegram-username" placeholder="@usuario"></div>
+        <div class="form-group"><label>Código de Afiliado</label><input id="edit-affiliate-code" disabled></div>
+        <div class="modal-actions sticky-footer">
+          <button type="button" id="cancelar-edicao-usuario" class="btn ghost">Cancelar</button>
+          <button type="submit" id="salvar-edicao-usuario" class="btn primary"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-ver-usuario" class="modal">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h3>Dados do usuário</h3>
+        <button class="close-button" aria-label="Fechar">&times;</button>
+      </div>
+      <div id="container-detalhes-usuario" class="details"></div>
+      <div class="modal-actions">
+        <button type="button" id="fechar-ver-usuario" class="btn ghost">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    // Verificação de login
+    document.addEventListener('DOMContentLoaded', function() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const userRole = localStorage.getItem('userRole');
+      const username = localStorage.getItem('username');
+      
+      if (isLoggedIn !== 'true' || userRole !== 'admin') {
+        // Não está logado ou não é admin, redirecionar para login
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Atualizar display do username
+      if (username) {
+        document.getElementById('username-display').textContent = username;
+      }
+      
+      // Botão de logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+    });
+  </script>
+</body>
+</html>

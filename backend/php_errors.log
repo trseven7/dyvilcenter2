@@ -1,0 +1,111 @@
+[20-Aug-2025 20:56:59 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in D:\dyvilcenter\backend\api.php:37
+Stack trace:
+#0 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 37
+[20-Aug-2025 21:00:08 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in D:\dyvilcenter\backend\api.php:37
+Stack trace:
+#0 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 37
+[20-Aug-2025 21:07:48 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in D:\dyvilcenter\backend\api.php:37
+Stack trace:
+#0 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 37
+[20-Aug-2025 21:13:55 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in D:\dyvilcenter\backend\api.php:37
+Stack trace:
+#0 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 37
+[21-Aug-2025 01:23:22 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in D:\dyvilcenter\db-connect.php:13
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(26): connectDB()
+#1 {main}
+  thrown in D:\dyvilcenter\db-connect.php on line 13
+[22-Aug-2025 00:11:56 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:11:59 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:12:03 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:12:06 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[22-Aug-2025 00:12:15 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:12:25 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:26:11 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[22-Aug-2025 00:26:21 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[22-Aug-2025 00:26:22 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[22-Aug-2025 00:26:22 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[22-Aug-2025 00:26:23 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[22-Aug-2025 00:26:28 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:137
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(137): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 137
+[23-Aug-2025 03:01:57 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[23-Aug-2025 03:03:37 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[23-Aug-2025 03:05:53 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[23-Aug-2025 03:05:59 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[23-Aug-2025 03:06:42 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'ip' in 'field list' in D:\dyvilcenter\backend\api.php:56
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(56): mysqli->query('SELECT id, user...')
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 56
+[23-Aug-2025 22:20:14 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot delete or update a parent row: a foreign key constraint fails (`dyvilcenter`.`announcements`, CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`)) in D:\dyvilcenter\backend\api.php:242
+Stack trace:
+#0 D:\dyvilcenter\backend\api.php(242): mysqli_stmt->execute()
+#1 {main}
+  thrown in D:\dyvilcenter\backend\api.php on line 242
