@@ -209,7 +209,7 @@
       }
       
       // Validar sessão no servidor
-      fetch('/backend/api.php?action=validateSession', {
+      fetch('backend/api.php?action=validateSession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -246,6 +246,28 @@
       
       // Botão de logout
       document.getElementById('logout-btn').addEventListener('click', function() {
+        const sessionToken = getCookie('session_token');
+        
+        if (sessionToken) {
+          // Fazer logout server-side
+          fetch('backend/api.php?action=logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_token: sessionToken
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Logout server-side:', data.message);
+          })
+          .catch(error => {
+            console.error('Erro no logout server-side:', error);
+          });
+        }
+        
         // Limpar cookies de sessão
         deleteCookie('session_token');
         deleteCookie('user_role');

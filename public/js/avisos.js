@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                     
-                    const response = await fetch('/backend/api.php?action=createAnnouncement', {
+                    const response = await fetch('backend/api.php?action=createAnnouncement', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
