@@ -42,8 +42,8 @@ function unique_affiliate_code($conn, $tries = 50) {
         }
         $stmt->close();
     }
-    // Se ainda não encontrou após 50 tentativas, tentar mais 500 vezes com sleep
-    for ($j=0; $j<500; $j++) {
+    // Se ainda não encontrou após 50 tentativas, tentar mais 50 vezes com sleep
+    for ($j=0; $j<50; $j++) {
         $code = gen_affiliate_code();
         $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
         $stmt->bind_param("s", $code);
@@ -57,7 +57,7 @@ function unique_affiliate_code($conn, $tries = 50) {
         usleep(10000); // 10ms sleep para evitar loop muito apertado
     }
     
-    // Se ainda não conseguiu após 550 tentativas total, retornar erro
+    // Se ainda não conseguiu após 100 tentativas total, retornar erro
     throw new Exception("Não foi possível gerar um código de afiliado único após múltiplas tentativas. Espaço de códigos pode estar saturado.");
 }
 
@@ -146,7 +146,13 @@ switch ($action) {
 
         // Gera ID e affiliate_code únicos
         $id = uuidv4();
-        $affiliate_code = unique_affiliate_code($conn);
+        
+        try {
+            $affiliate_code = unique_affiliate_code($conn);
+        } catch (Exception $e) {
+            echo json_encode(['success'=>false, 'error'=>'Não foi possível gerar um código de afiliado único. Tente novamente ou contate o administrador.']);
+            break;
+        }
 
         $stmt = $conn->prepare("INSERT INTO users (id, username, email, password, credits, role, status, plan, affiliate_code, telegram_id, telegram_username, ip) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
         $stmt->bind_param("ssssisssssss", $id, $username, $email, $password_hash, $credits, $role, $status, $plan, $affiliate_code, $telegram_id, $telegram_username, $ip);
