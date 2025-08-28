@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showNotification = (message, type='info') => {
         const div = document.createElement('div');
         div.className = `notification ${type}`;
-        div.innerHTML = message;
+        div.textContent = message; // Usar textContent para prevenir XSS
         document.body.appendChild(div);
         setTimeout(()=>{ div.style.opacity='1'; div.style.transform='translateY(0)'; },10);
         setTimeout(()=>{ div.style.opacity='0'; div.style.transform='translateY(-20px)'; setTimeout(()=>div.remove(),300); },3000);

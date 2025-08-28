@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriaText = getCategoriaText(aviso.category);
         
         return `
-            <div class="${classes.join(' ')}" data-aviso-id="${aviso.id}">
+            <div class="${classes.join(' ')}" data-aviso-id="${escapeHTML(aviso.id)}">
                 <div class="aviso-header">
                     <div class="aviso-icon ${iconClass}">
                         <i class="${getIcon(aviso.category)}"></i>
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notificacao.className = 'notificacao sucesso';
         notificacao.innerHTML = `
             <i class="fas fa-check-circle"></i>
-            <span>${mensagem}</span>
+            <span>${escapeHTML(mensagem)}</span>
         `;
         
         document.body.appendChild(notificacao);
@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notificacao.className = 'notificacao erro';
         notificacao.innerHTML = `
             <i class="fas fa-exclamation-circle"></i>
-            <span>${mensagem}</span>
+            <span>${escapeHTML(mensagem)}</span>
         `;
         
         document.body.appendChild(notificacao);
