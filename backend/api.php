@@ -29,7 +29,7 @@ function gen_affiliate_code($len = 4) {
     }
     return $code;
 }
-function unique_affiliate_code($conn, $tries = 5) {
+function unique_affiliate_code($conn, $tries = 50) {
     for ($i=0; $i<$tries; $i++) {
         $code = gen_affiliate_code();
         $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
@@ -42,8 +42,21 @@ function unique_affiliate_code($conn, $tries = 5) {
         }
         $stmt->close();
     }
-    // fallback with timestamp
-    return substr((string)time(), -4);
+    // Se ainda não encontrou um código único após 50 tentativas, 
+    // continuar tentando com sleep para evitar loop apertado
+    while (true) {
+        $code = gen_affiliate_code();
+        $stmt = $conn->prepare("SELECT id FROM users WHERE affiliate_code = ? LIMIT 1");
+        $stmt->bind_param("s", $code);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows === 0) {
+            $stmt->close();
+            return $code;
+        }
+        $stmt->close();
+        usleep(10000); // 10ms sleep para evitar loop muito apertado
+    }
 }
 
 $action = $_GET['action'] ?? '';

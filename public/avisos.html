@@ -204,13 +204,30 @@
 
   <script src="js/avisos.js"></script>
   <script>
+    // Funções para gerenciar cookies
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    function deleteCookie(name) {
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
+    }
+    
     // Verificação de login
     document.addEventListener('DOMContentLoaded', function() {
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
-      const userRole = localStorage.getItem('userRole');
-      const username = localStorage.getItem('username');
+      const sessionToken = getCookie('session_token');
+      const userRole = getCookie('user_role');
+      const username = getCookie('username');
       
-      if (isLoggedIn !== 'true' || userRole !== 'admin') {
+      if (!sessionToken || userRole !== 'admin') {
         // Não está logado ou não é admin, redirecionar para login
         window.location.href = 'login.html';
         return;
@@ -223,7 +240,15 @@
       
       // Botão de logout
       document.getElementById('logout-btn').addEventListener('click', function() {
+        // Limpar cookies de sessão
+        deleteCookie('session_token');
+        deleteCookie('user_role');
+        deleteCookie('user_id');
+        deleteCookie('username');
+        
+        // Limpar localStorage também (compatibilidade)
         localStorage.clear();
+        
         window.location.href = 'login.html';
       });
     });

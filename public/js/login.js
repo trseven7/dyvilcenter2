@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Adicionar flag Secure se estiver em HTTPS
         const secure = location.protocol === 'https:' ? '; Secure' : '';
         
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict; HttpOnly=false" + secure;
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict" + secure;
     }
     
     function getCookie(name) {
