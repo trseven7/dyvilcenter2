@@ -504,27 +504,29 @@ switch ($action) {
             
             $id = uuidv4();
             
-            // Usar o ID do usuário logado (vem do header Authorization)
+            // Validar token de sessão do usuário logado
             $headers = getallheaders();
             $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
             
             if (strpos($authHeader, 'Bearer ') === 0) {
-                $token = substr($authHeader, 7);
-                // Por enquanto, vamos buscar o primeiro admin disponível
-                // Em uma implementação real, você validaria o token JWT
-                $adminStmt = $conn->prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1");
-                $adminStmt->execute();
-                $adminResult = $adminStmt->get_result();
+                $session_token = substr($authHeader, 7);
                 
-                if ($adminResult->num_rows > 0) {
-                    $admin = $adminResult->fetch_assoc();
-                    $admin_id = $admin['id'];
+                // Validar session_token no banco de dados
+                $sessionStmt = $conn->prepare("SELECT u.id FROM user_sessions us JOIN users u ON u.id = us.user_id WHERE us.session_token = ? AND us.expires_at > NOW() AND u.status = 'active' AND u.role = 'admin' LIMIT 1");
+                $sessionStmt->bind_param("s", $session_token);
+                $sessionStmt->execute();
+                $sessionResult = $sessionStmt->get_result();
+                
+                if ($sessionResult->num_rows > 0) {
+                    $user = $sessionResult->fetch_assoc();
+                    $admin_id = $user['id'];
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Nenhum usuário admin encontrado no sistema']);
+                    echo json_encode(['success' => false, 'message' => 'Token de autenticação inválido ou expirado']);
+                    $sessionStmt->close();
                     break;
                 }
                 
-                $adminStmt->close();
+                $sessionStmt->close();
             } else {
                 echo json_encode(['success' => false, 'message' => 'Token de autenticação não fornecido']);
                 break;
