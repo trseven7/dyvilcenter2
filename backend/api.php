@@ -22,11 +22,10 @@ function uuidv4() {
         mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
     );
 }
-function gen_affiliate_code($len = 8) {
-    $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function gen_affiliate_code($len = 4) {
     $code = '';
     for ($i=0; $i < $len; $i++) {
-        $code .= $chars[random_int(0, strlen($chars)-1)];
+        $code .= random_int(0, 9);
     }
     return $code;
 }
@@ -44,7 +43,7 @@ function unique_affiliate_code($conn, $tries = 5) {
         $stmt->close();
     }
     // fallback with timestamp
-    return gen_affiliate_code(6) . substr((string)time(), -2);
+    return substr((string)time(), -4);
 }
 
 $action = $_GET['action'] ?? '';

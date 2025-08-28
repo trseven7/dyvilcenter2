@@ -17,7 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toUTCString();
         }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict";
+        
+        // Adicionar flag Secure se estiver em HTTPS
+        const secure = location.protocol === 'https:' ? '; Secure' : '';
+        
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict; HttpOnly=false" + secure;
     }
     
     function getCookie(name) {
@@ -32,7 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function deleteCookie(name) {
-        document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict";
+        const secure = location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
     }
     
     // Função para verificar status de login
