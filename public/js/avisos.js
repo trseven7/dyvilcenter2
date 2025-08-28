@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Função para escapar HTML e prevenir XSS
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
     // Elementos DOM
     const loadingAvisos = document.getElementById('loading-avisos');
     const listaAvisosContainer = document.getElementById('lista-avisos-container');
@@ -229,10 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="aviso-content">
                         <h3 class="aviso-title">
-                            ${aviso.title}
+                            ${escapeHTML(aviso.title)}
                             ${isFixado ? '<i class="fas fa-thumbtack fixado-icon"></i>' : ''}
                         </h3>
-                        <p class="aviso-mensagem">${aviso.message}</p>
+                        <p class="aviso-mensagem">${escapeHTML(aviso.message)}</p>
                         <div class="aviso-meta">
                             <span class="aviso-badge ${prioridadeClass}">${prioridadeText}</span>
                             <span class="aviso-badge categoria">${categoriaText}</span>
