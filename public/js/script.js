@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Buscar usuários da API
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/backend/api.php?action=getUsers');
+            const response = await fetch('backend/api.php?action=getUsers');
             const data = await response.json();
             usersData = Array.isArray(data) ? data : [];
             renderUsers();
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const telegramUsername = document.getElementById('create-telegram-username')?.value || '';
 
         try {
-            const resp = await fetch('/backend/api.php?action=createUser', {
+            const resp = await fetch('backend/api.php?action=createUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!payload.password) delete payload.password;
 
         try {
-            const resp = await fetch('/backend/api.php?action=updateUser', {
+            const resp = await fetch('backend/api.php?action=updateUser', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(payload)
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cancel-delete').addEventListener('click', ()=>{ closeModal(confirmModal); confirmModal.remove(); });
         document.getElementById('confirm-delete').addEventListener('click', async ()=>{
             try {
-                const resp = await fetch('/backend/api.php?action=deleteUser', {
+                const resp = await fetch('backend/api.php?action=deleteUser', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `id=${encodeURIComponent(id)}`

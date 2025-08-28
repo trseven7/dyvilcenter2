@@ -296,8 +296,8 @@ switch ($action) {
                 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
             }
             
-            // Verificar rate limiting (máximo 5 tentativas por IP em 15 minutos)
-            $rateLimitStmt = $conn->prepare("SELECT COUNT(*) as attempts FROM login_attempts WHERE ip_address = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
+            // Verificar rate limiting (máximo 5 tentativas FALHADAS por IP em 15 minutos)
+            $rateLimitStmt = $conn->prepare("SELECT COUNT(*) as attempts FROM login_attempts WHERE ip_address = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND success = 0");
             $rateLimitStmt->bind_param("s", $ip);
             $rateLimitStmt->execute();
             $rateLimitResult = $rateLimitStmt->get_result();
@@ -460,26 +460,6 @@ switch ($action) {
         }
         break;
 
-    case 'logout':
-        try {
-            $data = json_decode(file_get_contents('php://input'), true) ?? [];
-            
-            $session_token = trim($data['session_token'] ?? '');
-            
-            if (!empty($session_token)) {
-                // Remover sessão do banco de dados
-                $deleteSession = $conn->prepare("DELETE FROM user_sessions WHERE session_token = ?");
-                $deleteSession->bind_param("s", $session_token);
-                $deleteSession->execute();
-                $deleteSession->close();
-            }
-            
-            echo json_encode(['success' => true, 'message' => 'Logout realizado com sucesso']);
-            
-        } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
-        }
-        break;
 
     // ===== FUNCIONALIDADES DE AVISOS =====
     

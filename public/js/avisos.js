@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Carregando avisos...');
             
             // Fazer requisição para a API
-            const response = await fetch('/backend/api.php?action=getAnnouncements');
+            const response = await fetch('backend/api.php?action=getAnnouncements');
             
             console.log('Resposta da API:', response);
             
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function incrementarVisualizacoes(avisoId) {
         try {
-            const response = await fetch('/backend/api.php?action=incrementViews', {
+            const response = await fetch('backend/api.php?action=incrementViews', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
