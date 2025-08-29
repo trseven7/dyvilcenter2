@@ -221,5 +221,268 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordInput.focus();
         });
     }
+    
+    // Funcionalidade do modal de cadastro
+    setupRegisterModal();
 });
+
+// Configurar modal de cadastro
+function setupRegisterModal() {
+    const btnCadastro = document.getElementById('btnCadastro');
+    const modalCadastro = document.getElementById('modalCadastro');
+    const closeCadastro = document.getElementById('closeCadastro');
+    const cancelCadastro = document.getElementById('cancelCadastro');
+    const formCadastro = document.getElementById('formCadastro');
+    
+    // Abrir modal
+    btnCadastro?.addEventListener('click', function() {
+        modalCadastro.style.display = 'flex';
+        modalCadastro.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Fechar modal
+    function closeModal() {
+        modalCadastro.classList.remove('active');
+        setTimeout(() => {
+            modalCadastro.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }, 300);
+        formCadastro?.reset();
+    }
+    
+    closeCadastro?.addEventListener('click', closeModal);
+    cancelCadastro?.addEventListener('click', closeModal);
+    
+    // Fechar modal ao clicar fora
+    modalCadastro?.addEventListener('click', function(e) {
+        if (e.target === modalCadastro) {
+            closeModal();
+        }
+    });
+    
+    // Toggle senha no modal
+    setupPasswordToggle('toggleRegPassword', 'regPassword', 'toggleRegPasswordIcon');
+    
+    // Validação de senha em tempo real
+    setupPasswordValidation();
+    
+    // Submit do formulário de cadastro
+    formCadastro?.addEventListener('submit', handleRegister);
+}
+
+// Configurar toggle de senha
+function setupPasswordToggle(toggleId, inputId, iconId) {
+    const toggle = document.getElementById(toggleId);
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (toggle && input && icon) {
+        toggle.addEventListener('click', function() {
+            const isPassword = input.type === 'password';
+            
+            input.type = isPassword ? 'text' : 'password';
+            icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+            toggle.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
+            
+            input.focus();
+        });
+    }
+}
+
+// Configurar validação de senha
+function setupPasswordValidation() {
+    const passwordInput = document.getElementById('regPassword');
+    const confirmInput = document.getElementById('regConfirmPassword');
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            validatePassword(this.value);
+        });
+    }
+    
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function() {
+            validatePasswordMatch();
+        });
+    }
+}
+
+// Validar senha
+function validatePassword(password) {
+    const requirements = document.querySelector('.password-requirements small');
+    
+    const hasMinLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    
+    const isValid = hasMinLength && hasUppercase && hasLowercase && hasNumbers && hasSymbols;
+    
+    if (requirements) {
+        if (password.length === 0) {
+            requirements.textContent = 'Deve conter: maiúscula, minúscula, números e símbolos';
+            requirements.style.color = 'rgba(255, 255, 255, 0.6)';
+        } else if (isValid) {
+            requirements.textContent = '✓ Senha válida';
+            requirements.style.color = '#00ff88';
+        } else {
+            let missing = [];
+            if (!hasMinLength) missing.push('8+ caracteres');
+            if (!hasUppercase) missing.push('maiúscula');
+            if (!hasLowercase) missing.push('minúscula');
+            if (!hasNumbers) missing.push('números');
+            if (!hasSymbols) missing.push('símbolos');
+            
+            requirements.textContent = `Faltam: ${missing.join(', ')}`;
+            requirements.style.color = '#ff4d6d';
+        }
+    }
+    
+    return isValid;
+}
+
+// Validar confirmação de senha
+function validatePasswordMatch() {
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    const confirmInput = document.getElementById('regConfirmPassword');
+    
+    // Remover classes anteriores
+    confirmInput.classList.remove('valid', 'invalid');
+    
+    if (confirmPassword.length > 0) {
+        if (password === confirmPassword) {
+            confirmInput.classList.add('valid');
+        } else {
+            confirmInput.classList.add('invalid');
+        }
+    }
+}
+
+// Lidar com cadastro
+async function handleRegister(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    // Validações
+    if (!validatePassword(data.password)) {
+        showRegisterError('Senha não atende aos requisitos');
+        return;
+    }
+    
+    if (data.password !== data.confirmPassword) {
+        showRegisterError('Senhas não coincidem');
+        return;
+    }
+    
+    // Normalizar inputs
+    data.username = data.username.trim();
+    data.telegramId = data.telegramId.toString().trim();
+    if (data.inviteCode) data.inviteCode = data.inviteCode.trim();
+    
+    // Validar e normalizar Telegram username
+    const rawTelegramUsername = (data.telegramUsername || '').trim();
+    const cleanTelegramUsername = rawTelegramUsername.replace(/^@+/, '');
+    if (!cleanTelegramUsername) {
+        showRegisterError('@ do Telegram é obrigatório');
+        return;
+    }
+    data.telegramUsername = '@' + cleanTelegramUsername;
+    
+    // Validar Telegram ID
+    if (!/^\d+$/.test(data.telegramId)) {
+        showRegisterError('ID do Telegram deve conter apenas números');
+        return;
+    }
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Criando conta...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('backend/api.php?action=createUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: data.username,
+                password: data.password,
+                telegram_username: data.telegramUsername,
+                telegram_id: data.telegramId,
+                invite_code: data.inviteCode || null,
+                plan: data.plan,
+                role: 'user',
+                status: 'active',
+                credits: 0
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showRegisterSuccess('Conta criada com sucesso! Você pode fazer login agora.');
+            
+            // Fechar modal após 2 segundos
+            setTimeout(() => {
+                document.getElementById('modalCadastro').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('modalCadastro').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+                document.getElementById('formCadastro').reset();
+            }, 2000);
+        } else {
+            showRegisterError(result.error || 'Erro ao criar conta');
+        }
+        
+    } catch (error) {
+        console.error('Erro no cadastro:', error);
+        showRegisterError('Erro de conexão. Tente novamente.');
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Mostrar erro no cadastro
+function showRegisterError(message) {
+    const errorMessage = document.getElementById('registerErrorMessage');
+    const errorText = document.getElementById('registerErrorText');
+    
+    if (errorMessage && errorText) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'flex';
+        errorMessage.style.background = 'rgba(255, 77, 109, 0.2)';
+        errorMessage.style.borderColor = 'rgba(255, 77, 109, 0.5)';
+        errorMessage.style.color = '#ff4d6d';
+        
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// Mostrar sucesso no cadastro
+function showRegisterSuccess(message) {
+    const errorMessage = document.getElementById('registerErrorMessage');
+    const errorText = document.getElementById('registerErrorText');
+    
+    if (errorMessage && errorText) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'flex';
+        errorMessage.style.background = 'rgba(0, 255, 136, 0.2)';
+        errorMessage.style.borderColor = 'rgba(0, 255, 136, 0.5)';
+        errorMessage.style.color = '#00ff88';
+        
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 3000);
+    }
+}
 
