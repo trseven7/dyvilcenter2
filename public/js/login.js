@@ -349,14 +349,15 @@ function validatePasswordMatch() {
     const confirmPassword = document.getElementById('regConfirmPassword').value;
     const confirmInput = document.getElementById('regConfirmPassword');
     
+    // Remover classes anteriores
+    confirmInput.classList.remove('valid', 'invalid');
+    
     if (confirmPassword.length > 0) {
         if (password === confirmPassword) {
-            confirmInput.style.borderColor = '#00ff88';
+            confirmInput.classList.add('valid');
         } else {
-            confirmInput.style.borderColor = '#ff4d6d';
+            confirmInput.classList.add('invalid');
         }
-    } else {
-        confirmInput.style.borderColor = 'rgba(0, 255, 136, 0.3)';
     }
 }
 
@@ -378,10 +379,19 @@ async function handleRegister(e) {
         return;
     }
     
-    // Validar Telegram username
-    if (data.telegramUsername && !data.telegramUsername.startsWith('@')) {
-        data.telegramUsername = '@' + data.telegramUsername.replace('@', '');
+    // Normalizar inputs
+    data.username = data.username.trim();
+    data.telegramId = data.telegramId.toString().trim();
+    if (data.inviteCode) data.inviteCode = data.inviteCode.trim();
+    
+    // Validar e normalizar Telegram username
+    const rawTelegramUsername = (data.telegramUsername || '').trim();
+    const cleanTelegramUsername = rawTelegramUsername.replace(/^@+/, '');
+    if (!cleanTelegramUsername) {
+        showRegisterError('@ do Telegram é obrigatório');
+        return;
     }
+    data.telegramUsername = '@' + cleanTelegramUsername;
     
     // Validar Telegram ID
     if (!/^\d+$/.test(data.telegramId)) {

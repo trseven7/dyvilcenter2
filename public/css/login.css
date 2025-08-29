@@ -786,6 +786,16 @@ body.matrix-bg {
     margin-bottom: 20px;
 }
 
+.form-input.valid {
+    border-color: #00ff88 !important;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.form-input.invalid {
+    border-color: #ff4d6d !important;
+    box-shadow: 0 0 10px rgba(255, 77, 109, 0.3);
+}
+
 .password-requirements {
     margin-top: 5px;
 }
