@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Função para escapar HTML e prevenir XSS
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
     // Elementos DOM
     const loadingAvisos = document.getElementById('loading-avisos');
     const listaAvisosContainer = document.getElementById('lista-avisos-container');
@@ -83,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Carregando avisos...');
             
             // Fazer requisição para a API
-            const response = await fetch('/backend/api.php?action=getAnnouncements');
+            const response = await fetch('backend/api.php?action=getAnnouncements');
             
             console.log('Resposta da API:', response);
             
@@ -222,17 +233,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriaText = getCategoriaText(aviso.category);
         
         return `
-            <div class="${classes.join(' ')}" data-aviso-id="${aviso.id}">
+            <div class="${classes.join(' ')}" data-aviso-id="${escapeHTML(aviso.id)}">
                 <div class="aviso-header">
                     <div class="aviso-icon ${iconClass}">
                         <i class="${getIcon(aviso.category)}"></i>
                     </div>
                     <div class="aviso-content">
                         <h3 class="aviso-title">
-                            ${aviso.title}
+                            ${escapeHTML(aviso.title)}
                             ${isFixado ? '<i class="fas fa-thumbtack fixado-icon"></i>' : ''}
                         </h3>
-                        <p class="aviso-mensagem">${aviso.message}</p>
+                        <p class="aviso-mensagem">${escapeHTML(aviso.message)}</p>
                         <div class="aviso-meta">
                             <span class="aviso-badge ${prioridadeClass}">${prioridadeText}</span>
                             <span class="aviso-badge categoria">${categoriaText}</span>
@@ -347,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function incrementarVisualizacoes(avisoId) {
         try {
-            const response = await fetch('/backend/api.php?action=incrementViews', {
+            const response = await fetch('backend/api.php?action=incrementViews', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -435,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                     
-                    const response = await fetch('/backend/api.php?action=createAnnouncement', {
+                    const response = await fetch('backend/api.php?action=createAnnouncement', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -484,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notificacao.className = 'notificacao sucesso';
         notificacao.innerHTML = `
             <i class="fas fa-check-circle"></i>
-            <span>${mensagem}</span>
+            <span>${escapeHTML(mensagem)}</span>
         `;
         
         document.body.appendChild(notificacao);
@@ -507,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notificacao.className = 'notificacao erro';
         notificacao.innerHTML = `
             <i class="fas fa-exclamation-circle"></i>
-            <span>${mensagem}</span>
+            <span>${escapeHTML(mensagem)}</span>
         `;
         
         document.body.appendChild(notificacao);

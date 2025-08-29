@@ -4,6 +4,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
     
+    // Função para gerar CSRF token
+    function generateCSRFToken() {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+    
+    // Gerar e definir CSRF token
+    const csrfToken = generateCSRFToken();
+    document.getElementById('csrf_token').value = csrfToken;
+    sessionStorage.setItem('csrf_token', csrfToken);
+    
     // Verificar se já está logado
     checkLoginStatus();
     
@@ -47,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (sessionToken && userRole === 'admin') {
             // Verificar se a sessão ainda é válida
-            fetch('/backend/api.php?action=validateSession', {
+            fetch('backend/api.php?action=validateSession', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,6 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
+        const csrfToken = document.getElementById('csrf_token').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
         
         // Validação básica
         if (!username || !password) {
@@ -101,14 +115,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Fazer requisição para verificar credenciais
-            const response = await fetch('/backend/api.php?action=login', {
+            const response = await fetch('backend/api.php?action=login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     username: username,
-                    password: password
+                    password: password,
+                    csrf_token: csrfToken,
+                    remember_me: rememberMe
                 })
             });
             
@@ -116,16 +132,33 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 // Login bem-sucedido - armazenar dados da sessão em cookies
-                setCookie('session_token', data.session_token, 7); // 7 dias
-                setCookie('user_role', data.user.role, 7);
-                setCookie('user_id', data.user.id, 7);
-                setCookie('username', data.user.username, 7);
+                // Duração baseada em "Lembrar de mim": 30 dias se marcado, 7 dias se não
+                const cookieDays = rememberMe ? 30 : 7;
+                setCookie('session_token', data.session_token, cookieDays);
+                setCookie('user_role', data.user.role, cookieDays);
+                setCookie('user_id', data.user.id, cookieDays);
+                setCookie('username', data.user.username, cookieDays);
                 
-                // Redirecionar para dashboard
-                window.location.href = 'index.html';
+                // Mostrar feedback de sucesso antes de redirecionar
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Sucesso! Redirecionando...';
+                submitBtn.style.background = 'linear-gradient(135deg, #00ff88, #00cc6a)';
+                
+                // Redirecionar após breve delay para mostrar feedback
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
             } else {
-                // Login falhou
-                showError(data.message || 'Credenciais inválidas');
+                // Login falhou - verificar se é rate limiting
+                if (data.rate_limited) {
+                    showError(data.message, 'warning');
+                    // Desabilitar botão por mais tempo se rate limited
+                    submitBtn.disabled = true;
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                    }, 5000);
+                } else {
+                    showError(data.message || 'Credenciais inválidas');
+                }
             }
             
         } catch (error) {
@@ -139,17 +172,54 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Função para mostrar erro
-    function showError(message) {
+    function showError(message, type = 'error') {
         errorText.textContent = message;
         errorMessage.style.display = 'flex';
         
-        // Esconder erro após 5 segundos
+        // Aplicar estilo baseado no tipo
+        if (type === 'warning') {
+            errorMessage.style.background = 'rgba(255, 193, 7, 0.2)';
+            errorMessage.style.borderColor = 'rgba(255, 193, 7, 0.5)';
+            errorMessage.style.color = '#ffc107';
+            errorMessage.querySelector('i').className = 'fas fa-exclamation-triangle';
+        } else {
+            errorMessage.style.background = 'rgba(255, 77, 109, 0.2)';
+            errorMessage.style.borderColor = 'rgba(255, 77, 109, 0.5)';
+            errorMessage.style.color = '#ff4d6d';
+            errorMessage.querySelector('i').className = 'fas fa-exclamation-triangle';
+        }
+        
+        // Esconder erro após tempo baseado no tipo
+        const hideTime = type === 'warning' ? 8000 : 5000;
         setTimeout(() => {
             errorMessage.style.display = 'none';
-        }, 5000);
+        }, hideTime);
     }
     
     // Focar no primeiro campo
     document.getElementById('username').focus();
+    
+    // Funcionalidade de mostrar/ocultar senha
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    
+    if (togglePassword && passwordInput && togglePasswordIcon) {
+        togglePassword.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            
+            // Alternar tipo do input
+            passwordInput.type = isPassword ? 'text' : 'password';
+            
+            // Alternar ícone
+            togglePasswordIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+            
+            // Atualizar aria-label para acessibilidade
+            togglePassword.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
+            
+            // Manter foco no input de senha
+            passwordInput.focus();
+        });
+    }
 });
 

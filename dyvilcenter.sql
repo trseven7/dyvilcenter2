@@ -408,4 +408,16 @@ CREATE TABLE user_sessions (
   INDEX idx_expires_at (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS login_attempts;
+CREATE TABLE login_attempts (
+  id CHAR(36) NOT NULL DEFAULT (UUID()),
+  ip_address VARCHAR(45) NOT NULL,
+  username VARCHAR(255),
+  success BOOLEAN NOT NULL DEFAULT FALSE,
+  attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX idx_ip_time (ip_address, attempt_time),
+  INDEX idx_username_time (username, attempt_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS=1;

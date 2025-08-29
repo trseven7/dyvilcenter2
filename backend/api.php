@@ -273,9 +273,39 @@ switch ($action) {
             
             $username = trim($data['username'] ?? '');
             $password = $data['password'] ?? '';
+            $csrf_token = $data['csrf_token'] ?? '';
+            $remember_me = (bool)($data['remember_me'] ?? false);
             
             if (empty($username) || empty($password)) {
                 echo json_encode(['success' => false, 'message' => 'Username e senha são obrigatórios']);
+                break;
+            }
+            
+            // Validação básica do CSRF token (verificar se foi fornecido)
+            if (empty($csrf_token) || strlen($csrf_token) < 32) {
+                echo json_encode(['success' => false, 'message' => 'Token de segurança inválido']);
+                break;
+            }
+            
+            // Obter IP do usuário para rate limiting
+            $ip = null;
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                $ip = trim($parts[0]);
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            }
+            
+            // Verificar rate limiting (máximo 5 tentativas FALHADAS por IP em 15 minutos)
+            $rateLimitStmt = $conn->prepare("SELECT COUNT(*) as attempts FROM login_attempts WHERE ip_address = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND success = 0");
+            $rateLimitStmt->bind_param("s", $ip);
+            $rateLimitStmt->execute();
+            $rateLimitResult = $rateLimitStmt->get_result();
+            $attempts = $rateLimitResult->fetch_assoc()['attempts'];
+            $rateLimitStmt->close();
+            
+            if ($attempts >= 5) {
+                echo json_encode(['success' => false, 'message' => 'Você tentou muitas vezes. Tente novamente em 15 minutos.', 'rate_limited' => true]);
                 break;
             }
             
@@ -287,6 +317,12 @@ switch ($action) {
             $result = $stmt->get_result();
             
             if ($result->num_rows === 0) {
+                // Registrar tentativa de login falhada
+                $logAttempt = $conn->prepare("INSERT INTO login_attempts (ip_address, username, success, attempt_time) VALUES (?, ?, 0, NOW())");
+                $logAttempt->bind_param("ss", $ip, $username);
+                $logAttempt->execute();
+                $logAttempt->close();
+                
                 echo json_encode(['success' => false, 'message' => 'Usuário não encontrado']);
                 $stmt->close();
                 break;
@@ -297,25 +333,45 @@ switch ($action) {
             
             // Verificar se o usuário está ativo
             if ($user['status'] !== 'active') {
+                // Registrar tentativa de login falhada
+                $logAttempt = $conn->prepare("INSERT INTO login_attempts (ip_address, username, success, attempt_time) VALUES (?, ?, 0, NOW())");
+                $logAttempt->bind_param("ss", $ip, $username);
+                $logAttempt->execute();
+                $logAttempt->close();
+                
                 echo json_encode(['success' => false, 'message' => 'Usuário inativo']);
                 break;
             }
             
             // Verificar senha
             if (!password_verify($password, $user['password'])) {
+                // Registrar tentativa de login falhada
+                $logAttempt = $conn->prepare("INSERT INTO login_attempts (ip_address, username, success, attempt_time) VALUES (?, ?, 0, NOW())");
+                $logAttempt->bind_param("ss", $ip, $username);
+                $logAttempt->execute();
+                $logAttempt->close();
+                
                 echo json_encode(['success' => false, 'message' => 'Senha incorreta']);
                 break;
             }
             
             // Verificar se é admin
             if ($user['role'] !== 'admin') {
+                // Registrar tentativa de login falhada
+                $logAttempt = $conn->prepare("INSERT INTO login_attempts (ip_address, username, success, attempt_time) VALUES (?, ?, 0, NOW())");
+                $logAttempt->bind_param("ss", $ip, $username);
+                $logAttempt->execute();
+                $logAttempt->close();
+                
                 echo json_encode(['success' => false, 'message' => 'Acesso negado. Apenas administradores']);
                 break;
             }
             
             // Gerar token de sessão
             $session_token = bin2hex(random_bytes(32));
-            $expires_at = date('Y-m-d H:i:s', time() + (7 * 24 * 60 * 60)); // 7 dias
+            // Duração baseada em "Lembrar de mim": 30 dias se marcado, 7 dias se não
+            $session_duration = $remember_me ? (30 * 24 * 60 * 60) : (7 * 24 * 60 * 60);
+            $expires_at = date('Y-m-d H:i:s', time() + $session_duration);
             
             // Salvar sessão no banco de dados
             $insertSession = $conn->prepare("INSERT INTO user_sessions (user_id, session_token, expires_at, created_at) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE session_token = VALUES(session_token), expires_at = VALUES(expires_at), created_at = NOW()");
@@ -328,6 +384,12 @@ switch ($action) {
             $updateLogin->bind_param("s", $user['id']);
             $updateLogin->execute();
             $updateLogin->close();
+            
+            // Registrar tentativa de login bem-sucedida
+            $logAttempt = $conn->prepare("INSERT INTO login_attempts (ip_address, username, success, attempt_time) VALUES (?, ?, 1, NOW())");
+            $logAttempt->bind_param("ss", $ip, $username);
+            $logAttempt->execute();
+            $logAttempt->close();
             
             // Login bem-sucedido
             echo json_encode([
@@ -398,26 +460,6 @@ switch ($action) {
         }
         break;
 
-    case 'logout':
-        try {
-            $data = json_decode(file_get_contents('php://input'), true) ?? [];
-            
-            $session_token = trim($data['session_token'] ?? '');
-            
-            if (!empty($session_token)) {
-                // Remover sessão do banco de dados
-                $deleteSession = $conn->prepare("DELETE FROM user_sessions WHERE session_token = ?");
-                $deleteSession->bind_param("s", $session_token);
-                $deleteSession->execute();
-                $deleteSession->close();
-            }
-            
-            echo json_encode(['success' => true, 'message' => 'Logout realizado com sucesso']);
-            
-        } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
-        }
-        break;
 
     // ===== FUNCIONALIDADES DE AVISOS =====
     
@@ -617,6 +659,74 @@ switch ($action) {
             }
             
             $checkStmt->close();
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
+        }
+        break;
+
+    case 'logout':
+        try {
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+            $session_token = trim($data['session_token'] ?? '');
+            
+            if (empty($session_token)) {
+                echo json_encode(['success' => false, 'message' => 'Token de sessão não fornecido']);
+                break;
+            }
+            
+            // Invalidar sessão específica
+            $stmt = $conn->prepare("DELETE FROM user_sessions WHERE session_token = ?");
+            $stmt->bind_param("s", $session_token);
+            $stmt->execute();
+            $affected = $stmt->affected_rows;
+            $stmt->close();
+            
+            if ($affected > 0) {
+                echo json_encode(['success' => true, 'message' => 'Logout realizado com sucesso']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Sessão não encontrada']);
+            }
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
+        }
+        break;
+
+    case 'logoutAll':
+        try {
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
+            $session_token = trim($data['session_token'] ?? '');
+            
+            if (empty($session_token)) {
+                echo json_encode(['success' => false, 'message' => 'Token de sessão não fornecido']);
+                break;
+            }
+            
+            // Buscar user_id da sessão atual
+            $userStmt = $conn->prepare("SELECT user_id FROM user_sessions WHERE session_token = ?");
+            $userStmt->bind_param("s", $session_token);
+            $userStmt->execute();
+            $userResult = $userStmt->get_result();
+            
+            if ($userResult->num_rows === 0) {
+                echo json_encode(['success' => false, 'message' => 'Sessão não encontrada']);
+                $userStmt->close();
+                break;
+            }
+            
+            $user = $userResult->fetch_assoc();
+            $user_id = $user['user_id'];
+            $userStmt->close();
+            
+            // Invalidar todas as sessões do usuário
+            $stmt = $conn->prepare("DELETE FROM user_sessions WHERE user_id = ?");
+            $stmt->bind_param("s", $user_id);
+            $stmt->execute();
+            $affected = $stmt->affected_rows;
+            $stmt->close();
+            
+            echo json_encode(['success' => true, 'message' => "Logout realizado em $affected dispositivos"]);
             
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);

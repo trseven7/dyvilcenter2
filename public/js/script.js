@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Função para escapar HTML e prevenir XSS
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
     const searchInput = document.getElementById('buscar-usuarios');
     const filterPlan = document.getElementById('filtro-plano');
     const filterStatus = document.getElementById('filtro-status');
@@ -23,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Buscar usuários da API
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/backend/api.php?action=getUsers');
+            const response = await fetch('backend/api.php?action=getUsers');
             const data = await response.json();
             usersData = Array.isArray(data) ? data : [];
             renderUsers();
@@ -44,24 +55,24 @@ document.addEventListener('DOMContentLoaded', () => {
         lista.forEach(user => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td data-label="Usuário">${user.username}</td>
-                <td data-label="Plano">${user.plan || 'free'}</td>
-                <td data-label="Créditos">${user.credits}</td>
-                <td data-label="Status">${user.status}</td>
-                <td data-label="IP">${user.ip || 'N/A'}</td>
-                <td data-label="Telegram ID">${user.telegram_id || 'N/A'}</td>
+                <td data-label="Usuário">${escapeHTML(user.username)}</td>
+                <td data-label="Plano">${escapeHTML(user.plan || 'free')}</td>
+                <td data-label="Créditos">${escapeHTML(user.credits)}</td>
+                <td data-label="Status">${escapeHTML(user.status)}</td>
+                <td data-label="IP">${escapeHTML(user.ip || 'N/A')}</td>
+                <td data-label="Telegram ID">${escapeHTML(user.telegram_id || 'N/A')}</td>
                 <td data-label="Ações">
                     <div class="acoes-desktop">
-                        <button class="icon-button ver-btn" data-user-id="${user.id}" title="Visualizar"><i class="fas fa-eye"></i></button>
-                        <button class="icon-button editar-btn" data-user-id="${user.id}" title="Editar"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="icon-button excluir-btn" data-user-id="${user.id}" title="Excluir"><i class="fas fa-trash"></i></button>
+                        <button class="icon-button ver-btn" data-user-id="${escapeHTML(user.id)}" title="Visualizar"><i class="fas fa-eye"></i></button>
+                        <button class="icon-button editar-btn" data-user-id="${escapeHTML(user.id)}" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="icon-button excluir-btn" data-user-id="${escapeHTML(user.id)}" title="Excluir"><i class="fas fa-trash"></i></button>
                     </div>
                     <div class="acoes-mobile dropdown">
                         <button class="icon-button mais-btn" title="Mais ações"><i class="fas fa-ellipsis-v"></i></button>
                         <div class="dropdown-menu">
-                            <button class="dropdown-item ver-btn" data-user-id="${user.id}"><i class="fas fa-eye"></i> Visualizar</button>
-                            <button class="dropdown-item editar-btn" data-user-id="${user.id}"><i class="fas fa-pencil-alt"></i> Editar</button>
-                            <button class="dropdown-item excluir-btn" data-user-id="${user.id}"><i class="fas fa-trash"></i> Excluir</button>
+                            <button class="dropdown-item ver-btn" data-user-id="${escapeHTML(user.id)}"><i class="fas fa-eye"></i> Visualizar</button>
+                            <button class="dropdown-item editar-btn" data-user-id="${escapeHTML(user.id)}"><i class="fas fa-pencil-alt"></i> Editar</button>
+                            <button class="dropdown-item excluir-btn" data-user-id="${escapeHTML(user.id)}"><i class="fas fa-trash"></i> Excluir</button>
                         </div>
                     </div>
                 </td>
@@ -140,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const telegramUsername = document.getElementById('create-telegram-username')?.value || '';
 
         try {
-            const resp = await fetch('/backend/api.php?action=createUser', {
+            const resp = await fetch('backend/api.php?action=createUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -173,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = `
             <div class="user-detail-grid">
                 ${['id','username','email','role','status','plan','credits','ip','created_at','last_login','telegram_id','telegram_username','affiliate_code']
-                .map(k => `<div class="detail-item"><span class="detail-label">${(k.replace('_',' ').toUpperCase())}:</span><span class="detail-value">${user[k] ?? 'N/A'}</span></div>`).join('')}
+                .map(k => `<div class="detail-item"><span class="detail-label">${escapeHTML(k.replace('_',' ').toUpperCase())}:</span><span class="detail-value">${escapeHTML(user[k] ?? 'N/A')}</span></div>`).join('')}
             </div>`;
         openModal(modal);
         modal.querySelector('.close-button')?.addEventListener('click', ()=>closeModal(modal));
@@ -227,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!payload.password) delete payload.password;
 
         try {
-            const resp = await fetch('/backend/api.php?action=updateUser', {
+            const resp = await fetch('backend/api.php?action=updateUser', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(payload)
@@ -272,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cancel-delete').addEventListener('click', ()=>{ closeModal(confirmModal); confirmModal.remove(); });
         document.getElementById('confirm-delete').addEventListener('click', async ()=>{
             try {
-                const resp = await fetch('/backend/api.php?action=deleteUser', {
+                const resp = await fetch('backend/api.php?action=deleteUser', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `id=${encodeURIComponent(id)}`
@@ -294,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showNotification = (message, type='info') => {
         const div = document.createElement('div');
         div.className = `notification ${type}`;
-        div.innerHTML = message;
+        div.textContent = message; // Usar textContent para prevenir XSS
         document.body.appendChild(div);
         setTimeout(()=>{ div.style.opacity='1'; div.style.transform='translateY(0)'; },10);
         setTimeout(()=>{ div.style.opacity='0'; div.style.transform='translateY(-20px)'; setTimeout(()=>div.remove(),300); },3000);
