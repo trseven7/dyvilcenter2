@@ -248,7 +248,7 @@ function setupRegisterModal() {
             modalCadastro.style.display = 'none';
             document.body.style.overflow = 'auto';
         }, 300);
-        formCadastro.reset();
+        formCadastro?.reset();
     }
     
     closeCadastro?.addEventListener('click', closeModal);
@@ -379,7 +379,7 @@ async function handleRegister(e) {
     }
     
     // Validar Telegram username
-    if (!data.telegramUsername.startsWith('@')) {
+    if (data.telegramUsername && !data.telegramUsername.startsWith('@')) {
         data.telegramUsername = '@' + data.telegramUsername.replace('@', '');
     }
     
