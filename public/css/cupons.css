@@ -588,6 +588,139 @@
     color: #fff;
 }
 
+/* Modal de Sucesso de Cópia */
+.copy-success-modal {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.copy-success-content {
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #00ff88;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { 
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.copy-success-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.copy-success-header i {
+    font-size: 2rem;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.copy-success-header h3 {
+    margin: 0;
+    color: #00ff88;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.copy-success-body {
+    margin-bottom: 1.5rem;
+}
+
+.coupon-preview {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.coupon-code-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.coupon-info-display {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.coupon-info-display span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.coupon-info-display i {
+    color: #00ff88;
+}
+
+.copy-success-body p {
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.copy-success-actions {
+    display: flex;
+    justify-content: center;
+}
+
+.close-copy-modal {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.close-copy-modal:hover {
+    background: linear-gradient(135deg, #00ffaa, #00ff88);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+}
+
 /* Responsividade */
 @media (max-width: 1200px) {
     .content-grid {

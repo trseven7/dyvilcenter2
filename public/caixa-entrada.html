@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cupons - Dyvil Center Admin</title>
+  <title>Caixa de Entrada - Dyvil Center Admin</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/cupons.css">
+  <link rel="stylesheet" href="css/caixa-entrada.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,7 +13,7 @@
 <body>
   <div class="container matrix">
     <header class="topbar card">
-      <h1>Dyvil Center — Cupons</h1>
+      <h1>Dyvil Center — Caixa de Entrada</h1>
       <div class="header-actions">
         <span id="username-display" class="username-display">Admin</span>
         <button id="logout-btn" class="logout-btn">
@@ -31,136 +31,135 @@
         <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
         <li><a href="#" class="nav-item"><i class="fas fa-laptop-code"></i> Serviços</a></li>
         <li><a href="#" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
-        <li><a href="caixa-entrada.html" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
-        <li><a href="cupons.html" class="nav-item active"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
+        <li><a href="caixa-entrada.html" class="nav-item active"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
+        <li><a href="cupons.html" class="nav-item"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
         <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
       </ul>
     </nav>
 
+    <!-- Navegação Superior -->
+    <section class="inbox-nav card">
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="feedbacks">
+          <i class="fas fa-comment-dots"></i>
+          Feedbacks
+        </button>
+        <button class="nav-tab" data-tab="chat">
+          <i class="fas fa-comments"></i>
+          Chat
+        </button>
+        <button class="nav-tab" data-tab="avisos">
+          <i class="fas fa-bullhorn"></i>
+          Avisos
+        </button>
+        <button class="nav-tab" data-tab="mensagens">
+          <i class="fas fa-envelope"></i>
+          Mensagens
+        </button>
+        <button class="nav-tab" data-tab="servicos">
+          <i class="fas fa-cog"></i>
+          Serviços
+        </button>
+        <button class="nav-tab" data-tab="bins">
+          <i class="fas fa-credit-card"></i>
+          BINs
+        </button>
+        <button class="nav-tab" data-tab="caixa-entrada">
+          <i class="fas fa-inbox"></i>
+          Caixa de Entrada
+        </button>
+        <button class="nav-tab" data-tab="duvidas">
+          <i class="fas fa-question-circle"></i>
+          Dúvidas/Reclamações
+        </button>
+      </div>
+    </section>
+
     <!-- Cards de Estatísticas -->
     <section class="stats-section">
       <div class="stats-grid">
-        <div class="stat-card card">
+        <div class="stat-card card total">
           <div class="stat-icon">
-            <i class="fas fa-ticket-alt"></i>
+            <i class="fas fa-envelope"></i>
           </div>
           <div class="stat-content">
-            <h3>Total de Cupons</h3>
-            <span id="total-cupons" class="stat-number">0</span>
+            <h3>Total</h3>
+            <span id="total-messages" class="stat-number">1</span>
           </div>
         </div>
         
-        <div class="stat-card card active">
+        <div class="stat-card card unread">
           <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-envelope-open"></i>
           </div>
           <div class="stat-content">
-            <h3>Cupons Ativos</h3>
-            <span id="cupons-ativos" class="stat-number">0</span>
+            <h3>Não Lidas</h3>
+            <span id="unread-messages" class="stat-number">0</span>
           </div>
         </div>
         
-        <div class="stat-card card used">
+        <div class="stat-card card rating">
           <div class="stat-icon">
-            <i class="fas fa-times-circle"></i>
+            <i class="fas fa-star"></i>
           </div>
           <div class="stat-content">
-            <h3>Cupons Usados</h3>
-            <span id="cupons-usados" class="stat-number">0</span>
+            <h3>Média Rating</h3>
+            <span id="average-rating" class="stat-number">5.0</span>
           </div>
         </div>
         
-        <div class="stat-card card expired">
+        <div class="stat-card card today">
           <div class="stat-icon">
-            <i class="fas fa-clock"></i>
+            <i class="fas fa-calendar-day"></i>
           </div>
           <div class="stat-content">
-            <h3>Cupons Expirados</h3>
-            <span id="cupons-expirados" class="stat-number">0</span>
-          </div>
-        </div>
-        
-        <div class="stat-card card credits">
-          <div class="stat-icon">
-            <i class="fas fa-coins"></i>
-          </div>
-          <div class="stat-content">
-            <h3>Total Créditos</h3>
-            <span id="total-creditos" class="stat-number">0</span>
+            <h3>Hoje</h3>
+            <span id="today-messages" class="stat-number">1</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Seção Principal -->
+    <!-- Conteúdo Principal -->
     <section class="main-content">
       <div class="content-grid">
-        <!-- Formulário de Criação -->
-        <div class="create-section card">
-          <h2><i class="fas fa-plus-circle"></i> Criar Cupom de Créditos</h2>
-          
-          <form id="create-coupon-form" class="create-form">
-            <div class="form-group">
-              <label for="credits-amount">Quantidade de Créditos</label>
-              <input type="number" id="credits-amount" name="credits" min="1" max="10000" value="100" required>
-            </div>
+        <!-- Lista de Feedbacks -->
+        <div class="feedbacks-section card">
+          <div class="feedbacks-header">
+            <h2><i class="fas fa-comment-dots"></i> Feedbacks (1)</h2>
             
-            <div class="form-group">
-              <label for="coupons-quantity">Quantidade de Cupons</label>
-              <input type="number" id="coupons-quantity" name="quantity" min="1" max="100" value="1" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="validity-days">Validade (dias)</label>
-              <input type="number" id="validity-days" name="validity" min="1" max="365" value="30" required>
-            </div>
-            
-            <button type="submit" class="create-btn">
-              <i class="fas fa-magic"></i>
-              Criar Cupom
-            </button>
-          </form>
-        </div>
-
-        <!-- Lista de Cupons -->
-        <div class="coupons-section card">
-          <div class="coupons-header">
-            <h2>Cupons Criados (<span id="coupons-count">0</span>)</h2>
-            
-            <div class="coupons-actions">
-              <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">
-                  Todos (<span id="filter-all-count">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="active">
-                  Ativos (<span id="filter-active-count">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="used">
-                  Usados (<span id="filter-used-count">0</span>)
-                </button>
-                <button class="filter-tab" data-filter="expired">
-                  Expirados (<span id="filter-expired-count">0</span>)
-                </button>
+            <div class="feedbacks-controls">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-feedbacks" placeholder="Pesquisar feedbacks">
               </div>
               
-              <div class="bulk-actions">
-                <button id="copy-all-btn" class="action-btn">
-                  <i class="fas fa-copy"></i>
-                  Copiar Ativos
-                </button>
-                <button id="delete-all-btn" class="action-btn danger">
-                  <i class="fas fa-trash"></i>
-                  Apagar Não Utilizados
-                </button>
-              </div>
+              <select id="filter-feedbacks" class="filter-select">
+                <option value="todos">Todos</option>
+                <option value="5">⭐⭐⭐⭐⭐ (5 estrelas)</option>
+                <option value="4">⭐⭐⭐⭐ (4 estrelas)</option>
+                <option value="3">⭐⭐⭐ (3 estrelas)</option>
+                <option value="2">⭐⭐ (2 estrelas)</option>
+                <option value="1">⭐ (1 estrela)</option>
+              </select>
             </div>
           </div>
           
-          <div id="coupons-list" class="coupons-list">
-            <div class="empty-state">
-              <i class="fas fa-ticket-alt"></i>
-              <p>Nenhum cupom criado ainda</p>
-              <small>Use o formulário ao lado para criar seus primeiros cupons</small>
+          <div id="feedbacks-list" class="feedbacks-list">
+            <!-- Feedbacks serão carregados aqui -->
+          </div>
+        </div>
+
+        <!-- Detalhes do Feedback -->
+        <div class="feedback-details-section card">
+          <div class="feedback-details-header">
+            <h2><i class="fas fa-info-circle"></i> Detalhes do Feedback</h2>
+          </div>
+          
+          <div id="feedback-details" class="feedback-details">
+            <div class="no-selection">
+              <i class="fas fa-comment-dots"></i>
+              <p>Selecione um feedback para ver os detalhes</p>
             </div>
           </div>
         </div>
@@ -168,32 +167,31 @@
     </section>
   </div>
 
-  <!-- Modal de Códigos Criados -->
-  <div id="codes-modal" class="modal">
+  <!-- Modal de Exclusão -->
+  <div id="delete-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3><i class="fas fa-check-circle"></i> Cupons Criados com Sucesso!</h3>
-        <button class="close-btn" id="close-codes-modal">
+        <h3><i class="fas fa-trash"></i> Excluir Feedback</h3>
+        <button class="close-btn" id="close-delete-modal">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div class="modal-body">
-        <p>Os seguintes códigos foram gerados:</p>
-        <div id="generated-codes" class="codes-list"></div>
-        <div class="modal-actions">
-          <button id="copy-codes-btn" class="btn-primary">
-            <i class="fas fa-copy"></i>
-            Copiar Todos
-          </button>
-          <button id="close-modal-btn" class="btn-secondary">
-            Fechar
-          </button>
-        </div>
+        <p>Tem certeza que deseja excluir este feedback? Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="confirm-delete-btn" class="btn-danger">
+          <i class="fas fa-trash"></i>
+          Excluir
+        </button>
+        <button id="cancel-delete-btn" class="btn-secondary">
+          Cancelar
+        </button>
       </div>
     </div>
   </div>
 
-  <script src="js/cupons.js"></script>
+  <script src="js/caixa-entrada.js"></script>
   <script>
     // Funções para gerenciar cookies
     function getCookie(name) {
