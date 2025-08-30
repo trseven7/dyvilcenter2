@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerenciar Serviços - Dyvil Center Admin</title>
+  <title>Gerenciamento de BINs - Dyvil Center Admin</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/servicos.css">
+  <link rel="stylesheet" href="css/bins.css">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,7 +13,7 @@
 <body>
   <div class="container matrix">
     <header class="topbar card">
-      <h1>Dyvil Center — Gerenciar Serviços</h1>
+      <h1>Dyvil Center — Gerenciamento de BINs</h1>
       <div class="header-actions">
         <span id="username-display" class="username-display">Admin</span>
         <button id="logout-btn" class="logout-btn">
@@ -29,42 +29,35 @@
         <li><a href="index.html" class="nav-item"><i class="fas fa-users"></i> Usuários</a></li>
         <li><a href="avisos.html" class="nav-item"><i class="fas fa-bullhorn"></i> Avisos</a></li>
         <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
-        <li><a href="servicos.html" class="nav-item active"><i class="fas fa-laptop-code"></i> Serviços</a></li>
-        <li><a href="bins.html" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
+        <li><a href="servicos.html" class="nav-item"><i class="fas fa-laptop-code"></i> Serviços</a></li>
+        <li><a href="bins.html" class="nav-item active"><i class="fas fa-credit-card"></i> BINs</a></li>
         <li><a href="caixa-entrada.html" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
         <li><a href="cupons.html" class="nav-item"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
         <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
       </ul>
     </nav>
 
-    <!-- Controles e Filtros -->
-    <section class="controls-section card">
-      <div class="controls-header">
-        <h2><i class="fas fa-laptop-code"></i> Gerenciar Serviços</h2>
-        <div class="controls-actions">
-          <button id="recarregar-servicos" class="action-btn">
-            <i class="fas fa-sync-alt"></i>
-            Recarregar Serviços
-          </button>
-          <button id="novo-servico" class="action-btn primary">
-            <i class="fas fa-plus"></i>
-            Novo Serviço
-          </button>
-        </div>
+    <!-- Cabeçalho e Controles -->
+    <section class="bins-header card">
+      <div class="header-content">
+        <h2><i class="fas fa-credit-card"></i> Gerenciamento de BINs</h2>
+        <button id="adicionar-bin" class="add-bin-btn">
+          <i class="fas fa-plus"></i>
+          Adicionar BIN
+        </button>
       </div>
       
-      <div class="filters-grid">
-        <div class="filter-group">
-          <label for="filtro-categoria">Filtrar por Categoria</label>
-          <select id="filtro-categoria" class="filter-select">
-            <option value="todas">Todas as categorias</option>
-            <option value="cc">CC</option>
-            <option value="login-email">Login Email</option>
-            <option value="login-cpf">Login CPF</option>
-            <option value="consulta">Consulta</option>
-          </select>
+      <div class="search-section">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="buscar-bin" placeholder="Buscar BIN, descrição ou serviço...">
         </div>
-        
+      </div>
+    </section>
+
+    <!-- Filtros -->
+    <section class="filters-section card">
+      <div class="filters-grid">
         <div class="filter-group">
           <label for="filtro-plano">Filtrar por Plano</label>
           <select id="filtro-plano" class="filter-select">
@@ -76,100 +69,133 @@
         </div>
         
         <div class="filter-group">
-          <label for="filtro-status">Filtrar por Status</label>
-          <select id="filtro-status" class="filter-select">
-            <option value="todos">Todos os status</option>
-            <option value="online">Online</option>
-            <option value="manutencao">Manutenção</option>
-            <option value="offline">Offline</option>
+          <label for="filtro-descricao">Filtrar por Descrição</label>
+          <select id="filtro-descricao" class="filter-select">
+            <option value="todos">Todos</option>
+            <option value="com">Com descrição</option>
+            <option value="sem">Sem descrição</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-bandeira">Filtrar por Bandeira</label>
+          <select id="filtro-bandeira" class="filter-select">
+            <option value="todas">Todas as bandeiras</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-nivel">Filtrar por Nível</label>
+          <select id="filtro-nivel" class="filter-select">
+            <option value="todos">Todos os níveis</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-banco">Filtrar por Banco</label>
+          <select id="filtro-banco" class="filter-select">
+            <option value="todos">Todos os bancos</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-pais">Filtrar por País</label>
+          <select id="filtro-pais" class="filter-select">
+            <option value="todos">Todos os países</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-servico">Filtrar por Serviço</label>
+          <select id="filtro-servico" class="filter-select">
+            <option value="todos">Todos os serviços</option>
           </select>
         </div>
       </div>
     </section>
 
-    <!-- Lista de Serviços -->
-    <section class="services-section card">
-      <div class="services-header">
-        <h3>Serviços Cadastrados (<span id="services-count">0</span>)</h3>
+    <!-- Abas de Navegação -->
+    <section class="tabs-section card">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="todos">
+          <span>Todos os BINs</span>
+          <span id="count-todos" class="tab-count">0</span>
+        </button>
+        <button class="tab-btn" data-tab="servico">
+          <span id="servico-ativo">Selecione um serviço</span>
+          <span id="count-servico" class="tab-count">0</span>
+        </button>
       </div>
-      
-      <div id="services-list" class="services-list">
-        <!-- Serviços serão carregados aqui -->
+    </section>
+
+    <!-- Lista de BINs -->
+    <section class="bins-list-section card">
+      <div id="bins-list" class="bins-list">
+        <!-- BINs serão carregados aqui -->
       </div>
     </section>
   </div>
 
-  <!-- Modal de Novo Serviço -->
-  <div id="service-modal" class="modal">
+  <!-- Modal de Adicionar/Editar BIN -->
+  <div id="bin-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3><i class="fas fa-plus-circle"></i> <span id="modal-title">Novo Serviço</span></h3>
-        <button class="close-btn" id="close-service-modal">
+        <h3><i class="fas fa-credit-card"></i> <span id="modal-title">Adicionar BIN</span></h3>
+        <button class="close-btn" id="close-bin-modal">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div class="modal-body">
-        <form id="service-form" class="service-form">
+        <form id="bin-form" class="bin-form">
           <div class="form-grid">
             <div class="form-group">
-              <label for="service-name">Nome do Serviço</label>
-              <input type="text" id="service-name" name="name" required>
+              <label for="bin-number">BIN (máximo 6 números)</label>
+              <input type="text" id="bin-number" name="bin" maxlength="6" pattern="[0-9]{1,6}" required>
+              <small>Digite apenas números (ex: 455183)</small>
             </div>
             
             <div class="form-group">
-              <label for="service-api">Arquivo da API (.php)</label>
-              <input type="text" id="service-api" name="api_file" placeholder="exemplo.php" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="service-category">Categoria</label>
-              <select id="service-category" name="category" required>
-                <option value="">Selecione uma categoria</option>
-                <option value="cc">CC</option>
-                <option value="login-email">Login Email</option>
-                <option value="login-cpf">Login CPF</option>
-                <option value="consulta">Consulta</option>
+              <label for="bin-service">Serviço Pertencente</label>
+              <select id="bin-service" name="service_id" required>
+                <option value="">Selecione um serviço</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label for="service-plan">Plano Necessário</label>
-              <select id="service-plan" name="plan" required>
-                <option value="">Selecione um plano</option>
-                <option value="free">Free</option>
-                <option value="pro">Pro</option>
-                <option value="vip">VIP</option>
-              </select>
+              <label for="bin-bandeira">Bandeira</label>
+              <input type="text" id="bin-bandeira" name="bandeira" required>
             </div>
             
             <div class="form-group">
-              <label for="service-status">Status</label>
-              <select id="service-status" name="status" required>
-                <option value="">Selecione um status</option>
-                <option value="online">Online</option>
-                <option value="manutencao">Manutenção</option>
-                <option value="offline">Offline</option>
-              </select>
+              <label for="bin-banco">Banco</label>
+              <input type="text" id="bin-banco" name="banco" required>
             </div>
             
             <div class="form-group">
-              <label for="service-credits">Custo em Créditos</label>
-              <input type="number" id="service-credits" name="credits" min="0" max="1000" required>
+              <label for="bin-nivel">Nível</label>
+              <input type="text" id="bin-nivel" name="nivel" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="bin-pais">País</label>
+              <input type="text" id="bin-pais" name="pais" required>
             </div>
           </div>
           
           <div class="form-group full-width">
-            <label for="service-format">Formato de Uso do Serviço</label>
-            <textarea id="service-format" name="format" rows="4" placeholder="Descreva como usar este serviço..."></textarea>
+            <label>Descrição (Gerada Automaticamente)</label>
+            <div id="description-preview" class="description-preview">
+              Preencha os campos acima para ver a descrição
+            </div>
           </div>
         </form>
       </div>
       <div class="modal-actions">
-        <button id="save-service-btn" class="btn-primary">
+        <button id="save-bin-btn" class="btn-primary">
           <i class="fas fa-save"></i>
-          <span id="save-btn-text">Criar Serviço</span>
+          <span id="save-btn-text">Adicionar BIN</span>
         </button>
-        <button id="cancel-service-btn" class="btn-secondary">
+        <button id="cancel-bin-btn" class="btn-secondary">
           Cancelar
         </button>
       </div>
@@ -180,15 +206,15 @@
   <div id="delete-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3><i class="fas fa-trash"></i> Excluir Serviço</h3>
+        <h3><i class="fas fa-trash"></i> Excluir BIN</h3>
         <button class="close-btn" id="close-delete-modal">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div class="modal-body">
-        <p>Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.</p>
-        <div class="service-info">
-          <strong id="delete-service-name"></strong>
+        <p>Tem certeza que deseja excluir este BIN? Esta ação não pode ser desfeita.</p>
+        <div class="bin-info">
+          <strong id="delete-bin-info"></strong>
         </div>
       </div>
       <div class="modal-actions">
@@ -203,7 +229,7 @@
     </div>
   </div>
 
-  <script src="js/servicos.js"></script>
+  <script src="js/bins.js"></script>
   <script>
     // Funções para gerenciar cookies
     function getCookie(name) {
