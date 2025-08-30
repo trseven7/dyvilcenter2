@@ -507,7 +507,8 @@
 /* Fundo preto com matrix verde */
 body.matrix-bg {
     background-color: #000;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .matrix-particles {
