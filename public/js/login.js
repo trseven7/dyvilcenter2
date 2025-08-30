@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (sessionToken && userRole === 'admin') {
             // Verificar se a sessão ainda é válida
-            fetch('backend/api.php?action=validateSession', {
+            fetch('../backend/api.php?action=validateSession', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             // Fazer requisição para verificar credenciais
-            const response = await fetch('backend/api.php?action=login', {
+            const response = await fetch('../backend/api.php?action=login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -405,7 +405,7 @@ async function handleRegister(e) {
     submitBtn.disabled = true;
     
     try {
-        const response = await fetch('backend/api.php?action=createUser', {
+        const response = await fetch('../backend/api.php?action=createUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

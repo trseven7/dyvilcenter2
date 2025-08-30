@@ -209,7 +209,7 @@
       }
       
       // Validar sessão no servidor
-      fetch('backend/api.php?action=validateSession', {
+      fetch('../backend/api.php?action=validateSession', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +250,7 @@
         
         if (sessionToken) {
           // Fazer logout server-side
-          fetch('backend/api.php?action=logout', {
+          fetch('../backend/api.php?action=logout', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
