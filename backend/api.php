@@ -733,6 +733,383 @@ switch ($action) {
         }
         break;
 
+    case 'getCoupons':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin
+        $stmt = $conn->prepare("SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
+        try {
+            // Buscar todos os cupons com informações do usuário que usou
+            $sql = "SELECT c.*, 
+                           u_used.username as used_by_username,
+                           u_created.username as created_by_username
+                    FROM coupons c
+                    LEFT JOIN users u_used ON c.used_by = u_used.id
+                    LEFT JOIN users u_created ON c.created_by = u_created.id
+                    ORDER BY c.created_at DESC";
+            
+            $result = $conn->query($sql);
+            $coupons = [];
+            
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    // Determinar status do cupom
+                    $now = new DateTime();
+                    $expires_at = $row['expires_at'] ? new DateTime($row['expires_at']) : null;
+                    
+                    if ($row['is_used']) {
+                        $status = 'used';
+                    } elseif ($expires_at && $expires_at < $now) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'active';
+                    }
+                    
+                    $row['status'] = $status;
+                    $coupons[] = $row;
+                }
+            }
+            
+            // Calcular estatísticas
+            $stats = [
+                'total' => count($coupons),
+                'active' => 0,
+                'used' => 0,
+                'expired' => 0,
+                'total_credits' => 0
+            ];
+            
+            foreach ($coupons as $coupon) {
+                $stats['total_credits'] += $coupon['credits'];
+                switch ($coupon['status']) {
+                    case 'active':
+                        $stats['active']++;
+                        break;
+                    case 'used':
+                        $stats['used']++;
+                        break;
+                    case 'expired':
+                        $stats['expired']++;
+                        break;
+                }
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'coupons' => $coupons,
+                'stats' => $stats
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => 'Erro ao buscar cupons: ' . $e->getMessage()]);
+        }
+        break;
+
+    case 'createCoupons':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin e obter user_id
+        $stmt = $conn->prepare("SELECT u.id, u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        
+        $credits = (int)($data['credits'] ?? 0);
+        $quantity = (int)($data['quantity'] ?? 1);
+        $validity_days = (int)($data['validity_days'] ?? 30);
+        $created_by = $user['id']; // Usar ID do usuário da sessão
+        
+        if ($credits <= 0) {
+            echo json_encode(['success' => false, 'error' => 'Quantidade de créditos deve ser maior que zero']);
+            break;
+        }
+        
+        if ($quantity <= 0 || $quantity > 100) {
+            echo json_encode(['success' => false, 'error' => 'Quantidade deve ser entre 1 e 100']);
+            break;
+        }
+        
+        try {
+            $conn->begin_transaction();
+            
+            $created_codes = [];
+            $expires_at = date('Y-m-d H:i:s', strtotime("+{$validity_days} days"));
+            
+            for ($i = 0; $i < $quantity; $i++) {
+                // Gerar código único
+                do {
+                    $code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+                    $stmt = $conn->prepare("SELECT id FROM coupons WHERE code = ?");
+                    $stmt->bind_param("s", $code);
+                    $stmt->execute();
+                    $stmt->store_result();
+                    $exists = $stmt->num_rows > 0;
+                    $stmt->close();
+                } while ($exists);
+                
+                // Inserir cupom
+                $id = uuidv4();
+                $stmt = $conn->prepare("INSERT INTO coupons (id, code, credits, expires_at, created_by) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssiss", $id, $code, $credits, $expires_at, $created_by);
+                
+                if (!$stmt->execute()) {
+                    throw new Exception("Erro ao criar cupom: " . $stmt->error);
+                }
+                $stmt->close();
+                
+                $created_codes[] = $code;
+            }
+            
+            $conn->commit();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => "Criados {$quantity} cupons com sucesso",
+                'codes' => $created_codes
+            ]);
+            
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'error' => 'Erro ao criar cupons: ' . $e->getMessage()]);
+        }
+        break;
+
+    case 'deleteCoupon':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin
+        $stmt = $conn->prepare("SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $coupon_id = $data['id'] ?? '';
+        
+        if (empty($coupon_id)) {
+            echo json_encode(['success' => false, 'error' => 'ID do cupom não fornecido']);
+            break;
+        }
+        
+        try {
+            // Verificar se o cupom existe e não foi usado
+            $stmt = $conn->prepare("SELECT is_used FROM coupons WHERE id = ?");
+            $stmt->bind_param("s", $coupon_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                echo json_encode(['success' => false, 'error' => 'Cupom não encontrado']);
+                $stmt->close();
+                break;
+            }
+            
+            $coupon = $result->fetch_assoc();
+            $stmt->close();
+            
+            if ($coupon['is_used']) {
+                echo json_encode(['success' => false, 'error' => 'Não é possível deletar cupom já utilizado']);
+                break;
+            }
+            
+            // Deletar cupom
+            $stmt = $conn->prepare("DELETE FROM coupons WHERE id = ?");
+            $stmt->bind_param("s", $coupon_id);
+            
+            if ($stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Cupom deletado com sucesso']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Erro ao deletar cupom']);
+            }
+            $stmt->close();
+            
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => 'Erro ao deletar cupom: ' . $e->getMessage()]);
+        }
+        break;
+
+    case 'useCoupon':
+        // Validar sessão do usuário
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Obter user_id da sessão
+        $stmt = $conn->prepare("SELECT u.id FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $user_id = $user['id'];
+        $stmt->close();
+        
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $code = trim($data['code'] ?? '');
+        
+        if (empty($code)) {
+            echo json_encode(['success' => false, 'error' => 'Código do cupom é obrigatório']);
+            break;
+        }
+        
+        try {
+            $conn->begin_transaction();
+            
+            // Buscar cupom com lock para evitar race conditions
+            $stmt = $conn->prepare("SELECT * FROM coupons WHERE code = ? FOR UPDATE");
+            $stmt->bind_param("s", $code);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                echo json_encode(['success' => false, 'error' => 'Cupom não encontrado']);
+                $stmt->close();
+                $conn->rollback();
+                break;
+            }
+            
+            $coupon = $result->fetch_assoc();
+            $stmt->close();
+            
+            // Verificar se já foi usado
+            if ($coupon['is_used']) {
+                echo json_encode(['success' => false, 'error' => 'Cupom já foi utilizado']);
+                $conn->rollback();
+                break;
+            }
+            
+            // Verificar se expirou
+            if ($coupon['expires_at']) {
+                $now = new DateTime();
+                $expires_at = new DateTime($coupon['expires_at']);
+                if ($expires_at < $now) {
+                    echo json_encode(['success' => false, 'error' => 'Cupom expirado']);
+                    $conn->rollback();
+                    break;
+                }
+            }
+            
+            // Marcar cupom como usado
+            $stmt = $conn->prepare("UPDATE coupons SET is_used = TRUE, used_by = ?, used_at = NOW() WHERE id = ?");
+            $stmt->bind_param("ss", $user_id, $coupon['id']);
+            $stmt->execute();
+            $stmt->close();
+            
+            // Adicionar créditos ao usuário
+            $stmt = $conn->prepare("UPDATE users SET credits = credits + ? WHERE id = ?");
+            $stmt->bind_param("is", $coupon['credits'], $user_id);
+            $stmt->execute();
+            $stmt->close();
+            
+            // Registrar no histórico de créditos
+            $history_id = uuidv4();
+            $source = "Cupom: " . $coupon['code'];
+            $stmt = $conn->prepare("INSERT INTO credit_history (id, user_id, amount, source) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssis", $history_id, $user_id, $coupon['credits'], $source);
+            $stmt->execute();
+            $stmt->close();
+            
+            $conn->commit();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => "Cupom resgatado com sucesso! {$coupon['credits']} créditos adicionados.",
+                'credits_added' => $coupon['credits']
+            ]);
+            
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'error' => 'Erro ao usar cupom: ' . $e->getMessage()]);
+        }
+        break;
+
     default:
         echo json_encode(['success'=>false, 'error'=>'Ação não suportada']);
 }
