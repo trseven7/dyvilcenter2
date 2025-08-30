@@ -246,7 +246,7 @@ function setupRegisterModal() {
         modalCadastro.classList.remove('active');
         setTimeout(() => {
             modalCadastro.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
         }, 300);
         formCadastro?.reset();
     }
