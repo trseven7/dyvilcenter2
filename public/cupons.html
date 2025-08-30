@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cupons - Dyvil Center Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/cupons.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <header class="topbar card">
+      <h1>Dyvil Center — Cupons</h1>
+      <div class="header-actions">
+        <span id="username-display" class="username-display">Admin</span>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </header>
+
+    <nav class="horizontal-nav card">
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-item"><i class="fas fa-users"></i> Usuários</a></li>
+        <li><a href="avisos.html" class="nav-item"><i class="fas fa-bullhorn"></i> Avisos</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-laptop-code"></i> Serviços</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
+        <li><a href="cupons.html" class="nav-item active"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
+      </ul>
+    </nav>
+
+    <!-- Cards de Estatísticas -->
+    <section class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card card">
+          <div class="stat-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Total de Cupons</h3>
+            <span id="total-cupons" class="stat-number">0</span>
+          </div>
+        </div>
+        
+        <div class="stat-card card active">
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Cupons Ativos</h3>
+            <span id="cupons-ativos" class="stat-number">0</span>
+          </div>
+        </div>
+        
+        <div class="stat-card card used">
+          <div class="stat-icon">
+            <i class="fas fa-times-circle"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Cupons Usados</h3>
+            <span id="cupons-usados" class="stat-number">0</span>
+          </div>
+        </div>
+        
+        <div class="stat-card card expired">
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Cupons Expirados</h3>
+            <span id="cupons-expirados" class="stat-number">0</span>
+          </div>
+        </div>
+        
+        <div class="stat-card card credits">
+          <div class="stat-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="stat-content">
+            <h3>Total Créditos</h3>
+            <span id="total-creditos" class="stat-number">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Seção Principal -->
+    <section class="main-content">
+      <div class="content-grid">
+        <!-- Formulário de Criação -->
+        <div class="create-section card">
+          <h2><i class="fas fa-plus-circle"></i> Criar Cupom de Créditos</h2>
+          
+          <form id="create-coupon-form" class="create-form">
+            <div class="form-group">
+              <label for="credits-amount">Quantidade de Créditos</label>
+              <input type="number" id="credits-amount" name="credits" min="1" max="10000" value="100" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="coupons-quantity">Quantidade de Cupons</label>
+              <input type="number" id="coupons-quantity" name="quantity" min="1" max="100" value="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="validity-days">Validade (dias)</label>
+              <input type="number" id="validity-days" name="validity" min="1" max="365" value="30" required>
+            </div>
+            
+            <button type="submit" class="create-btn">
+              <i class="fas fa-magic"></i>
+              Criar Cupom
+            </button>
+          </form>
+        </div>
+
+        <!-- Lista de Cupons -->
+        <div class="coupons-section card">
+          <div class="coupons-header">
+            <h2>Cupons Criados (<span id="coupons-count">0</span>)</h2>
+            
+            <div class="coupons-actions">
+              <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                  Todos (<span id="filter-all-count">0</span>)
+                </button>
+                <button class="filter-tab" data-filter="active">
+                  Ativos (<span id="filter-active-count">0</span>)
+                </button>
+                <button class="filter-tab" data-filter="used">
+                  Usados (<span id="filter-used-count">0</span>)
+                </button>
+                <button class="filter-tab" data-filter="expired">
+                  Expirados (<span id="filter-expired-count">0</span>)
+                </button>
+              </div>
+              
+              <div class="bulk-actions">
+                <button id="copy-all-btn" class="action-btn">
+                  <i class="fas fa-copy"></i>
+                  Copiar Ativos
+                </button>
+                <button id="delete-all-btn" class="action-btn danger">
+                  <i class="fas fa-trash"></i>
+                  Apagar Todos
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div id="coupons-list" class="coupons-list">
+            <div class="empty-state">
+              <i class="fas fa-ticket-alt"></i>
+              <p>Nenhum cupom criado ainda</p>
+              <small>Use o formulário ao lado para criar seus primeiros cupons</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de Códigos Criados -->
+  <div id="codes-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-check-circle"></i> Cupons Criados com Sucesso!</h3>
+        <button class="close-btn" id="close-codes-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Os seguintes códigos foram gerados:</p>
+        <div id="generated-codes" class="codes-list"></div>
+        <div class="modal-actions">
+          <button id="copy-codes-btn" class="btn-primary">
+            <i class="fas fa-copy"></i>
+            Copiar Todos
+          </button>
+          <button id="close-modal-btn" class="btn-secondary">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/cupons.js"></script>
+  <script>
+    // Validação de sessão
+    document.addEventListener('DOMContentLoaded', function() {
+      const sessionToken = localStorage.getItem('sessionToken');
+      const userRole = localStorage.getItem('userRole');
+      
+      if (!sessionToken || userRole !== 'admin') {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Validar sessão no servidor
+      fetch('../backend/api.php?action=validateSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_token: sessionToken
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('userRole');
+          window.location.href = 'login.html';
+        }
+      })
+      .catch(error => {
+        console.error('Erro na validação:', error);
+        window.location.href = 'login.html';
+      });
+      
+      // Logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        const sessionToken = localStorage.getItem('sessionToken');
+        
+        if (sessionToken) {
+          // Fazer logout server-side
+          fetch('../backend/api.php?action=logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_token: sessionToken
+            })
+          })
+          .then(() => {
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('userRole');
+            window.location.href = 'login.html';
+          })
+          .catch(() => {
+            // Mesmo com erro, fazer logout local
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('userRole');
+            window.location.href = 'login.html';
+          });
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
