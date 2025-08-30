@@ -15,6 +15,26 @@ class CouponsManager {
         this.init();
     }
     
+    // Função para gerenciar cookies
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+    
+    // Função para escapar HTML e prevenir XSS
+    escapeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
     init() {
         this.bindEvents();
         this.loadCoupons();
@@ -50,7 +70,12 @@ class CouponsManager {
     
     async loadCoupons() {
         try {
-            const response = await fetch('../backend/api.php?action=getCoupons');
+            const sessionToken = this.getCookie('session_token');
+            const response = await fetch('../backend/api.php?action=getCoupons', {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionToken
+                }
+            });
             const data = await response.json();
             
             if (data.success) {
@@ -123,7 +148,7 @@ class CouponsManager {
         
         let statusInfo = '';
         if (coupon.status === 'used') {
-            statusInfo = `Usado por: ${coupon.used_by_username || 'N/A'} em ${usedDate}`;
+            statusInfo = `Usado por: ${this.escapeHTML(coupon.used_by_username) || 'N/A'} em ${usedDate}`;
         } else if (coupon.status === 'expired') {
             statusInfo = `Expirado em: ${expiresDate}`;
         } else {
@@ -131,9 +156,9 @@ class CouponsManager {
         }
         
         return `
-            <div class="coupon-item ${coupon.status}" data-id="${coupon.id}">
+            <div class="coupon-item ${coupon.status}" data-id="${this.escapeHTML(coupon.id)}">
                 <div class="coupon-info">
-                    <div class="coupon-code">${coupon.code}</div>
+                    <div class="coupon-code">${this.escapeHTML(coupon.code)}</div>
                     <div class="coupon-details">
                         <span><i class="fas fa-coins"></i> ${coupon.credits} créditos</span>
                         <span><i class="fas fa-calendar"></i> ${createdDate}</span>
@@ -142,13 +167,13 @@ class CouponsManager {
                 </div>
                 <div class="coupon-actions">
                     ${coupon.status === 'active' ? `
-                        <button class="coupon-btn copy-btn" data-code="${coupon.code}">
+                        <button class="coupon-btn copy-btn" data-code="${this.escapeHTML(coupon.code)}">
                             <i class="fas fa-copy"></i>
                             Copiar
                         </button>
                     ` : ''}
                     ${coupon.status !== 'used' ? `
-                        <button class="coupon-btn danger delete-btn" data-id="${coupon.id}">
+                        <button class="coupon-btn danger delete-btn" data-id="${this.escapeHTML(coupon.id)}">
                             <i class="fas fa-trash"></i>
                             Apagar
                         </button>
@@ -222,10 +247,12 @@ class CouponsManager {
         submitBtn.disabled = true;
         
         try {
+            const sessionToken = this.getCookie('session_token');
             const response = await fetch('../backend/api.php?action=createCoupons', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + sessionToken
                 },
                 body: JSON.stringify(data)
             });
@@ -255,10 +282,12 @@ class CouponsManager {
         }
         
         try {
+            const sessionToken = this.getCookie('session_token');
             const response = await fetch('../backend/api.php?action=deleteCoupon', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + sessionToken
                 },
                 body: JSON.stringify({ id })
             });
@@ -305,12 +334,15 @@ class CouponsManager {
         let deleted = 0;
         let errors = 0;
         
+        const sessionToken = this.getCookie('session_token');
+        
         for (const coupon of unusedCoupons) {
             try {
                 const response = await fetch('../backend/api.php?action=deleteCoupon', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + sessionToken
                     },
                     body: JSON.stringify({ id: coupon.id })
                 });

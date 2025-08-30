@@ -734,6 +734,37 @@ switch ($action) {
         break;
 
     case 'getCoupons':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin
+        $stmt = $conn->prepare("SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
         try {
             // Buscar todos os cupons com informações do usuário que usou
             $sql = "SELECT c.*, 
@@ -802,12 +833,43 @@ switch ($action) {
         break;
 
     case 'createCoupons':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin e obter user_id
+        $stmt = $conn->prepare("SELECT u.id, u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         
         $credits = (int)($data['credits'] ?? 0);
         $quantity = (int)($data['quantity'] ?? 1);
         $validity_days = (int)($data['validity_days'] ?? 30);
-        $created_by = $data['created_by'] ?? null;
+        $created_by = $user['id']; // Usar ID do usuário da sessão
         
         if ($credits <= 0) {
             echo json_encode(['success' => false, 'error' => 'Quantidade de créditos deve ser maior que zero']);
@@ -865,6 +927,37 @@ switch ($action) {
         break;
 
     case 'deleteCoupon':
+        // Validar sessão de admin
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Verificar se é admin
+        $stmt = $conn->prepare("SELECT u.role FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if ($user['role'] !== 'admin') {
+            echo json_encode(['success' => false, 'error' => 'Acesso negado']);
+            break;
+        }
+        
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         $coupon_id = $data['id'] ?? '';
         
@@ -911,20 +1004,46 @@ switch ($action) {
         break;
 
     case 'useCoupon':
+        // Validar sessão do usuário
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
+            break;
+        }
+        
+        $session_token = $matches[1];
+        
+        // Obter user_id da sessão
+        $stmt = $conn->prepare("SELECT u.id FROM user_sessions us JOIN users u ON us.user_id = u.id WHERE us.session_token = ? AND us.expires_at > NOW()");
+        $stmt->bind_param("s", $session_token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            echo json_encode(['success' => false, 'error' => 'Sessão inválida']);
+            $stmt->close();
+            break;
+        }
+        
+        $user = $result->fetch_assoc();
+        $user_id = $user['id'];
+        $stmt->close();
+        
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
         $code = trim($data['code'] ?? '');
-        $user_id = $data['user_id'] ?? '';
         
-        if (empty($code) || empty($user_id)) {
-            echo json_encode(['success' => false, 'error' => 'Código do cupom e ID do usuário são obrigatórios']);
+        if (empty($code)) {
+            echo json_encode(['success' => false, 'error' => 'Código do cupom é obrigatório']);
             break;
         }
         
         try {
             $conn->begin_transaction();
             
-            // Buscar cupom
-            $stmt = $conn->prepare("SELECT * FROM coupons WHERE code = ?");
+            // Buscar cupom com lock para evitar race conditions
+            $stmt = $conn->prepare("SELECT * FROM coupons WHERE code = ? FOR UPDATE");
             $stmt->bind_param("s", $code);
             $stmt->execute();
             $result = $stmt->get_result();

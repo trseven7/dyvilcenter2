@@ -195,14 +195,37 @@
 
   <script src="js/cupons.js"></script>
   <script>
+    // Funções para gerenciar cookies
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    function deleteCookie(name) {
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
+    }
+    
     // Validação de sessão
     document.addEventListener('DOMContentLoaded', function() {
-      const sessionToken = localStorage.getItem('sessionToken');
-      const userRole = localStorage.getItem('userRole');
+      const sessionToken = getCookie('session_token');
+      const userRole = getCookie('user_role');
+      const username = getCookie('username');
       
       if (!sessionToken || userRole !== 'admin') {
         window.location.href = 'login.html';
         return;
+      }
+      
+      // Exibir nome do usuário
+      if (username) {
+        document.getElementById('username-display').textContent = username;
       }
       
       // Validar sessão no servidor
@@ -218,8 +241,9 @@
       .then(response => response.json())
       .then(data => {
         if (!data.success) {
-          localStorage.removeItem('sessionToken');
-          localStorage.removeItem('userRole');
+          deleteCookie('session_token');
+          deleteCookie('user_role');
+          deleteCookie('username');
           window.location.href = 'login.html';
         }
       })
@@ -230,7 +254,7 @@
       
       // Logout
       document.getElementById('logout-btn').addEventListener('click', function() {
-        const sessionToken = localStorage.getItem('sessionToken');
+        const sessionToken = getCookie('session_token');
         
         if (sessionToken) {
           // Fazer logout server-side
@@ -244,14 +268,16 @@
             })
           })
           .then(() => {
-            localStorage.removeItem('sessionToken');
-            localStorage.removeItem('userRole');
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
             window.location.href = 'login.html';
           })
           .catch(() => {
             // Mesmo com erro, fazer logout local
-            localStorage.removeItem('sessionToken');
-            localStorage.removeItem('userRole');
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
             window.location.href = 'login.html';
           });
         } else {
