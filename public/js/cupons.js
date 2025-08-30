@@ -189,8 +189,15 @@ class CouponsManager {
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const code = e.currentTarget.dataset.code;
-                this.copyToClipboard(code);
-                this.showNotification(`Código ${code} copiado!`, 'success');
+                const coupon = this.coupons.find(c => c.code === code);
+                if (coupon) {
+                    const formattedText = this.formatCouponForCopy(coupon);
+                    this.copyToClipboard(formattedText);
+                    this.showCopySuccessModal(coupon);
+                } else {
+                    this.copyToClipboard(code);
+                    this.showNotification(`Código ${code} copiado!`, 'success');
+                }
             });
         });
         
@@ -397,6 +404,116 @@ class CouponsManager {
         setTimeout(() => {
             modal.style.display = 'none';
         }, 300);
+    }
+    
+    formatCouponForCopy(coupon) {
+        const createdDate = new Date(coupon.created_at).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit', 
+            year: 'numeric'
+        });
+        const createdTime = new Date(coupon.created_at).toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const expiresDate = coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }) : 'Nunca';
+        const expiresTime = coupon.expires_at ? new Date(coupon.expires_at).toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : '';
+        
+        const statusEmoji = coupon.status === 'active' ? '✅ ATIVO' : 
+                           coupon.status === 'used' ? '❌ USADO' : 
+                           '⏰ EXPIRADO';
+        
+        return `🎫 CUPOM: ${coupon.code}
+💰 VALOR: ${coupon.credits} créditos
+📅 CRIADO: ${createdDate}, ${createdTime}
+⏰ EXPIRA: ${expiresDate}${expiresTime ? ', ' + expiresTime : ''}
+${statusEmoji}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 SITE: dyvilcenter.online`;
+    }
+    
+    showCopySuccessModal(coupon) {
+        // Criar modal de sucesso
+        const modal = document.createElement('div');
+        modal.className = 'copy-success-modal';
+        modal.innerHTML = `
+            <div class="copy-success-content">
+                <div class="copy-success-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Cupom Copiado com Sucesso!</h3>
+                </div>
+                <div class="copy-success-body">
+                    <div class="coupon-preview">
+                        <div class="coupon-code-display">${coupon.code}</div>
+                        <div class="coupon-info-display">
+                            <span><i class="fas fa-coins"></i> ${coupon.credits} créditos</span>
+                            <span><i class="fas fa-calendar"></i> ${coupon.status === 'active' ? 'Ativo' : coupon.status === 'used' ? 'Usado' : 'Expirado'}</span>
+                        </div>
+                    </div>
+                    <p>O cupom foi copiado para sua área de transferência com todas as informações formatadas!</p>
+                </div>
+                <div class="copy-success-actions">
+                    <button class="btn-primary close-copy-modal">
+                        <i class="fas fa-check"></i>
+                        Entendi
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Adicionar estilos
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        // Adicionar ao DOM
+        document.body.appendChild(modal);
+        
+        // Evento de fechar
+        const closeBtn = modal.querySelector('.close-copy-modal');
+        closeBtn.addEventListener('click', () => {
+            modal.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }, 300);
+        });
+        
+        // Fechar ao clicar fora
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeBtn.click();
+            }
+        });
+        
+        // Auto-fechar após 4 segundos
+        setTimeout(() => {
+            if (modal.parentNode) {
+                closeBtn.click();
+            }
+        }, 4000);
     }
     
     copyToClipboard(text) {
