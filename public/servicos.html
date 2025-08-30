@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciar Serviços - Dyvil Center Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/servicos.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <header class="topbar card">
+      <h1>Dyvil Center — Gerenciar Serviços</h1>
+      <div class="header-actions">
+        <span id="username-display" class="username-display">Admin</span>
+        <button id="logout-btn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </header>
+
+    <nav class="horizontal-nav card">
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-item"><i class="fas fa-users"></i> Usuários</a></li>
+        <li><a href="avisos.html" class="nav-item"><i class="fas fa-bullhorn"></i> Avisos</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-envelope"></i> Mensagens</a></li>
+        <li><a href="servicos.html" class="nav-item active"><i class="fas fa-laptop-code"></i> Serviços</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-credit-card"></i> BINs</a></li>
+        <li><a href="caixa-entrada.html" class="nav-item"><i class="fas fa-inbox"></i> Caixa de entrada</a></li>
+        <li><a href="cupons.html" class="nav-item"><i class="fas fa-ticket-alt"></i> Cupons</a></li>
+        <li><a href="#" class="nav-item"><i class="fas fa-hourglass-half"></i> Solicitações pendentes</a></li>
+      </ul>
+    </nav>
+
+    <!-- Controles e Filtros -->
+    <section class="controls-section card">
+      <div class="controls-header">
+        <h2><i class="fas fa-laptop-code"></i> Gerenciar Serviços</h2>
+        <div class="controls-actions">
+          <button id="recarregar-servicos" class="action-btn">
+            <i class="fas fa-sync-alt"></i>
+            Recarregar Serviços
+          </button>
+          <button id="novo-servico" class="action-btn primary">
+            <i class="fas fa-plus"></i>
+            Novo Serviço
+          </button>
+        </div>
+      </div>
+      
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label for="filtro-categoria">Filtrar por Categoria</label>
+          <select id="filtro-categoria" class="filter-select">
+            <option value="todas">Todas as categorias</option>
+            <option value="cc">CC</option>
+            <option value="login-email">Login Email</option>
+            <option value="login-cpf">Login CPF</option>
+            <option value="consulta">Consulta</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-plano">Filtrar por Plano</label>
+          <select id="filtro-plano" class="filter-select">
+            <option value="todos">Todos os planos</option>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="filtro-status">Filtrar por Status</label>
+          <select id="filtro-status" class="filter-select">
+            <option value="todos">Todos os status</option>
+            <option value="online">Online</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de Serviços -->
+    <section class="services-section card">
+      <div class="services-header">
+        <h3>Serviços Cadastrados (<span id="services-count">0</span>)</h3>
+      </div>
+      
+      <div id="services-list" class="services-list">
+        <!-- Serviços serão carregados aqui -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal de Novo Serviço -->
+  <div id="service-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-plus-circle"></i> <span id="modal-title">Novo Serviço</span></h3>
+        <button class="close-btn" id="close-service-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="service-form" class="service-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="service-name">Nome do Serviço</label>
+              <input type="text" id="service-name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="service-api">Arquivo da API (.php)</label>
+              <input type="text" id="service-api" name="api_file" placeholder="exemplo.php" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="service-category">Categoria</label>
+              <select id="service-category" name="category" required>
+                <option value="">Selecione uma categoria</option>
+                <option value="cc">CC</option>
+                <option value="login-email">Login Email</option>
+                <option value="login-cpf">Login CPF</option>
+                <option value="consulta">Consulta</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="service-plan">Plano Necessário</label>
+              <select id="service-plan" name="plan" required>
+                <option value="">Selecione um plano</option>
+                <option value="free">Free</option>
+                <option value="pro">Pro</option>
+                <option value="vip">VIP</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="service-status">Status</label>
+              <select id="service-status" name="status" required>
+                <option value="">Selecione um status</option>
+                <option value="online">Online</option>
+                <option value="manutencao">Manutenção</option>
+                <option value="offline">Offline</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="service-credits">Custo em Créditos</label>
+              <input type="number" id="service-credits" name="credits" min="0" max="1000" required>
+            </div>
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="service-format">Formato de Uso do Serviço</label>
+            <textarea id="service-format" name="format" rows="4" placeholder="Descreva como usar este serviço..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button id="save-service-btn" class="btn-primary">
+          <i class="fas fa-save"></i>
+          <span id="save-btn-text">Criar Serviço</span>
+        </button>
+        <button id="cancel-service-btn" class="btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Exclusão -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-trash"></i> Excluir Serviço</h3>
+        <button class="close-btn" id="close-delete-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.</p>
+        <div class="service-info">
+          <strong id="delete-service-name"></strong>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="confirm-delete-btn" class="btn-danger">
+          <i class="fas fa-trash"></i>
+          Excluir
+        </button>
+        <button id="cancel-delete-btn" class="btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/servicos.js"></script>
+  <script>
+    // Funções para gerenciar cookies
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    function deleteCookie(name) {
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
+    }
+    
+    // Validação de sessão
+    document.addEventListener('DOMContentLoaded', function() {
+      const sessionToken = getCookie('session_token');
+      const userRole = getCookie('user_role');
+      const username = getCookie('username');
+      
+      if (!sessionToken || userRole !== 'admin') {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Exibir nome do usuário
+      if (username) {
+        document.getElementById('username-display').textContent = username;
+      }
+      
+      // Validar sessão no servidor
+      fetch('../backend/api.php?action=validateSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_token: sessionToken
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          deleteCookie('session_token');
+          deleteCookie('user_role');
+          deleteCookie('username');
+          window.location.href = 'login.html';
+        }
+      })
+      .catch(error => {
+        console.error('Erro na validação:', error);
+        window.location.href = 'login.html';
+      });
+      
+      // Logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        const sessionToken = getCookie('session_token');
+        
+        if (sessionToken) {
+          // Fazer logout server-side
+          fetch('../backend/api.php?action=logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_token: sessionToken
+            })
+          })
+          .then(() => {
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          })
+          .catch(() => {
+            // Mesmo com erro, fazer logout local
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          });
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
