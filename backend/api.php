@@ -736,7 +736,7 @@ switch ($action) {
     case 'getCoupons':
         // Validar sessão de admin
         $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? '';
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
         
         if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
             echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
@@ -835,7 +835,7 @@ switch ($action) {
     case 'createCoupons':
         // Validar sessão de admin
         $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? '';
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
         
         if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
             echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
@@ -929,7 +929,7 @@ switch ($action) {
     case 'deleteCoupon':
         // Validar sessão de admin
         $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? '';
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
         
         if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
             echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);
@@ -1006,7 +1006,7 @@ switch ($action) {
     case 'useCoupon':
         // Validar sessão do usuário
         $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? '';
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
         
         if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
             echo json_encode(['success' => false, 'error' => 'Token de autorização necessário']);

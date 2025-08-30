@@ -148,7 +148,8 @@ class CouponsManager {
         
         let statusInfo = '';
         if (coupon.status === 'used') {
-            statusInfo = `Usado por: ${this.escapeHTML(coupon.used_by_username) || 'N/A'} em ${usedDate}`;
+            const usedInfo = usedDate ? ` em ${usedDate}` : '';
+            statusInfo = `Usado por: ${this.escapeHTML(coupon.used_by_username) || 'N/A'}${usedInfo}`;
         } else if (coupon.status === 'expired') {
             statusInfo = `Expirado em: ${expiresDate}`;
         } else {
@@ -221,8 +222,7 @@ class CouponsManager {
         const data = {
             credits: parseInt(formData.get('credits')),
             quantity: parseInt(formData.get('quantity')),
-            validity_days: parseInt(formData.get('validity')),
-            created_by: localStorage.getItem('userId') // Assumindo que temos o ID do usuário
+            validity_days: parseInt(formData.get('validity'))
         };
         
         // Validações
@@ -417,12 +417,18 @@ class CouponsManager {
         // Criar elemento de notificação
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas ${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
-        `;
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${this.getNotificationIcon(type)}`;
+        
+        const span = document.createElement('span');
+        span.textContent = message;
+        
+        content.appendChild(icon);
+        content.appendChild(span);
+        notification.appendChild(content);
         
         // Adicionar estilos
         notification.style.cssText = `
