@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const sessionToken = getCookie('session_token');
         const userRole = getCookie('user_role');
         
-        if (sessionToken && userRole === 'admin') {
+        if (sessionToken) {
             // Verificar se a sessão ainda é válida
             fetch('../backend/api.php?action=validateSession', {
                 method: 'POST',
