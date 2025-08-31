@@ -257,6 +257,164 @@ document.addEventListener('DOMContentLoaded', () => {
                             </span>
                         </div>
                     </div>
+                    <div class="aviso-actions">
+                        <button class="delete-aviso-btn" data-aviso-id="${escapeHTML(aviso.id)}" title="Excluir aviso">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function bindDeleteEvents() {
+        document.querySelectorAll('.delete-aviso-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const avisoId = btn.dataset.avisoId;
+                confirmarExclusao(avisoId);
+            });
+        });
+    }
+    
+    function confirmarExclusao(avisoId) {
+        const aviso = avisos.find(a => a.id === avisoId);
+        if (!aviso) return;
+        
+        if (confirm(`Tem certeza que deseja excluir o aviso "${aviso.title}"? Esta ação não pode ser desfeita.`)) {
+            excluirAviso(avisoId);
+        }
+    }
+    
+    async function excluirAviso(avisoId) {
+        try {
+            const sessionToken = getCookie('session_token');
+            const response = await fetch('../backend/api.php?action=deleteAnnouncement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + sessionToken
+                },
+                body: JSON.stringify({ id: avisoId })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Remover da lista local
+                avisos = avisos.filter(a => a.id !== avisoId);
+                renderizarAvisos();
+                mostrarNotificacao('Aviso excluído com sucesso!', 'success');
+            } else {
+                mostrarNotificacao('Erro ao excluir aviso: ' + (result.error || 'Erro desconhecido'), 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir aviso:', error);
+            mostrarNotificacao('Erro de conexão ao excluir aviso', 'error');
+        }
+    }
+    
+    function mostrarNotificacao(mensagem, tipo = 'info') {
+        // Criar elemento de notificação
+        const notification = document.createElement('div');
+        notification.className = `notification ${tipo}`;
+        
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${getNotificationIcon(tipo)}`;
+        
+        const span = document.createElement('span');
+        span.textContent = mensagem;
+        
+        content.appendChild(icon);
+        content.appendChild(span);
+        notification.appendChild(content);
+        
+        // Adicionar estilos
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        `;
+        
+        // Cores baseadas no tipo
+        switch (tipo) {
+            case 'success':
+                notification.style.background = 'linear-gradient(135deg, #00ff88, #00cc6a)';
+                notification.style.color = '#000';
+                break;
+            case 'error':
+                notification.style.background = 'linear-gradient(135deg, #ff6b6b, #ff5252)';
+                break;
+            case 'warning':
+                notification.style.background = 'linear-gradient(135deg, #ffa726, #ff9800)';
+                notification.style.color = '#000';
+                break;
+            default:
+                notification.style.background = 'linear-gradient(135deg, #42a5f5, #2196f3)';
+        }
+        
+        document.body.appendChild(notification);
+        
+        // Animar entrada
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remover após 4 segundos
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
+    }
+    
+    function getNotificationIcon(tipo) {
+        switch (tipo) {
+            case 'success': return 'fa-check-circle';
+            case 'error': return 'fa-exclamation-circle';
+            case 'warning': return 'fa-exclamation-triangle';
+            default: return 'fa-info-circle';
+        }
+    }
+    
+    function renderizarAvisos() {
+        const container = document.getElementById('lista-avisos-container');
+        const loading = document.getElementById('loading-avisos');
+        const semAvisos = document.getElementById('sem-avisos');
+        
+        const avisosFiltrados = getAvisosFiltrados();
+        
+        if (avisosFiltrados.length === 0) {
+            container.style.display = 'none';
+            loading.style.display = 'none';
+            semAvisos.style.display = 'block';
+            return;
+        }
+        
+        container.innerHTML = avisosFiltrados.map(criarElementoAviso).join('');
+        container.style.display = 'block';
+        loading.style.display = 'none';
+        semAvisos.style.display = 'none';
+        
+        bindAvisoEvents();
+        bindDeleteEvents(); // Adicionar eventos de exclusão
+    }
+                    </div>
                 </div>
             </div>
         `;

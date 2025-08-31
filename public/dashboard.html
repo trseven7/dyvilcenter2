@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Dyvil Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <!-- Header do Dashboard -->
+    <header class="dashboard-header card">
+      <div class="header-content">
+        <h1 class="dashboard-title">
+          <i class="fas fa-tachometer-alt"></i>
+          DYVIL CENTER - DASHBOARD
+        </h1>
+        
+        <div class="user-info">
+          <div class="user-details">
+            <span class="user-name" id="user-name">Carregando...</span>
+            <div class="user-stats">
+              <span class="user-plan" id="user-plan">
+                <i class="fas fa-crown"></i>
+                <span id="plan-text">Free</span>
+              </span>
+              <span class="user-credits" id="user-credits">
+                <i class="fas fa-coins"></i>
+                <span id="credits-text">0</span> créditos
+              </span>
+            </div>
+          </div>
+          
+          <div class="header-actions">
+            <button id="logout-btn" class="logout-btn">
+              <i class="fas fa-sign-out-alt"></i>
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Grid de Opções do Dashboard -->
+    <section class="dashboard-grid">
+      <!-- Minha Conta -->
+      <div class="dashboard-card account-card" onclick="window.location.href='minha-conta.html'">
+        <div class="card-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="card-content">
+          <h3>Minha Conta</h3>
+          <p>Gerencie suas informações pessoais, altere sua senha e visualize detalhes da sua conta.</p>
+        </div>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <!-- Ranking Público Geral -->
+      <div class="dashboard-card ranking-card" onclick="window.location.href='ranking.html'">
+        <div class="card-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="card-content">
+          <h3>Ranking Público Geral</h3>
+          <p>Veja os top 5 usuários que mais convidam pessoas para o site e sua posição no ranking de afiliados.</p>
+        </div>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <!-- Painel Admin (apenas para admins) -->
+      <div class="dashboard-card admin-card" id="admin-card" onclick="window.location.href='index.html'" style="display: none;">
+        <div class="card-icon">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <div class="card-content">
+          <h3>Painel Administrativo</h3>
+          <p>Acesse o painel de administração para gerenciar usuários, avisos, serviços e outras configurações do sistema.</p>
+        </div>
+        <div class="card-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estatísticas Rápidas -->
+    <section class="quick-stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number" id="total-users">-</span>
+            <span class="stat-label">Usuários Totais</span>
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number" id="my-invites">-</span>
+            <span class="stat-label">Meus Convites</span>
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number" id="member-since">-</span>
+            <span class="stat-label">Membro desde</span>
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i class="fas fa-code"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number" id="affiliate-code">-</span>
+            <span class="stat-label">Código de Afiliado</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+  <script>
+    // Funções para gerenciar cookies
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    function deleteCookie(name) {
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
+    }
+    
+    // Validação de sessão
+    document.addEventListener('DOMContentLoaded', function() {
+      const sessionToken = getCookie('session_token');
+      const userRole = getCookie('user_role');
+      const username = getCookie('username');
+      
+      if (!sessionToken) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Mostrar painel admin se for admin
+      if (userRole === 'admin') {
+        document.getElementById('admin-card').style.display = 'block';
+      }
+      
+      // Validar sessão no servidor
+      fetch('../backend/api.php?action=validateSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_token: sessionToken
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          deleteCookie('session_token');
+          deleteCookie('user_role');
+          deleteCookie('username');
+          window.location.href = 'login.html';
+        }
+      })
+      .catch(error => {
+        console.error('Erro na validação:', error);
+        window.location.href = 'login.html';
+      });
+      
+      // Logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        const sessionToken = getCookie('session_token');
+        
+        if (sessionToken) {
+          // Fazer logout server-side
+          fetch('../backend/api.php?action=logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_token: sessionToken
+            })
+          })
+          .then(() => {
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          })
+          .catch(() => {
+            // Mesmo com erro, fazer logout local
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          });
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
