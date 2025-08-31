@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     // Sessão válida, redirecionar para dashboard
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard.html';
                 } else {
                     // Sessão inválida, limpar cookies
                     deleteCookie('session_token');
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Redirecionar após breve delay para mostrar feedback
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
             } else {
                 // Login falhou - verificar se é rate limiting
