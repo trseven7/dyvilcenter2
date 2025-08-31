@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking Público Geral - Dyvil Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ranking.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="container matrix">
+    <!-- Header -->
+    <header class="ranking-header card">
+      <div class="header-content">
+        <div class="header-left">
+          <button onclick="window.location.href='dashboard.html'" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+          </button>
+        </div>
+        
+        <h1 class="page-title">
+          <i class="fas fa-trophy"></i>
+          Ranking Público Geral
+        </h1>
+        
+        <div class="header-right">
+          <button id="logout-btn" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            Sair
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Ranking de Afiliados -->
+    <section class="ranking-section card">
+      <div class="ranking-header">
+        <h2>
+          <i class="fas fa-users"></i>
+          Ranking de Afiliados
+        </h2>
+        <p class="ranking-description">
+          Top 5 usuários que mais convidam pessoas para o site
+        </p>
+      </div>
+      
+      <div class="ranking-content">
+        <div id="loading-ranking" class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Carregando ranking...</p>
+        </div>
+        
+        <div id="ranking-list" class="ranking-list" style="display: none;">
+          <!-- Ranking será carregado aqui -->
+        </div>
+        
+        <div id="empty-ranking" class="empty-ranking" style="display: none;">
+          <i class="fas fa-trophy"></i>
+          <p>Nenhum usuário no ranking ainda</p>
+          <small>Seja o primeiro a convidar pessoas e aparecer no ranking!</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sua Posição -->
+    <section class="my-position card">
+      <div class="position-header">
+        <h3>
+          <i class="fas fa-medal"></i>
+          Sua Posição
+        </h3>
+      </div>
+      
+      <div class="position-content">
+        <div class="position-info">
+          <div class="position-rank" id="my-position">
+            <span class="rank-number">-</span>
+            <span class="rank-label">Posição</span>
+          </div>
+          
+          <div class="position-stats">
+            <div class="stat-item">
+              <span class="stat-number" id="my-invites">0</span>
+              <span class="stat-label">Convites</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-number" id="my-affiliate-code">-</span>
+              <span class="stat-label">Seu Código</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="position-actions">
+          <button class="share-btn" id="share-code-btn">
+            <i class="fas fa-share-alt"></i>
+            Compartilhar Código
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Informações sobre o Ranking -->
+    <section class="ranking-info card">
+      <div class="info-header">
+        <h3>
+          <i class="fas fa-info-circle"></i>
+          Como Funciona o Ranking
+        </h3>
+      </div>
+      
+      <div class="info-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="info-text">
+              <h4>Convide Pessoas</h4>
+              <p>Compartilhe seu código de afiliado com amigos e conhecidos</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="info-text">
+              <h4>Suba no Ranking</h4>
+              <p>Quanto mais pessoas se cadastrarem com seu código, maior sua posição</p>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="info-text">
+              <h4>Seja Reconhecido</h4>
+              <p>Apareça no top 5 e seja reconhecido pela comunidade</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/ranking.js"></script>
+  <script>
+    // Funções para gerenciar cookies
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    function deleteCookie(name) {
+      const secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict" + secure;
+    }
+    
+    // Validação de sessão
+    document.addEventListener('DOMContentLoaded', function() {
+      const sessionToken = getCookie('session_token');
+      
+      if (!sessionToken) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Validar sessão no servidor
+      fetch('../backend/api.php?action=validateSession', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_token: sessionToken
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          deleteCookie('session_token');
+          deleteCookie('user_role');
+          deleteCookie('username');
+          window.location.href = 'login.html';
+        }
+      })
+      .catch(error => {
+        console.error('Erro na validação:', error);
+        window.location.href = 'login.html';
+      });
+      
+      // Logout
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        const sessionToken = getCookie('session_token');
+        
+        if (sessionToken) {
+          // Fazer logout server-side
+          fetch('../backend/api.php?action=logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_token: sessionToken
+            })
+          })
+          .then(() => {
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          })
+          .catch(() => {
+            // Mesmo com erro, fazer logout local
+            deleteCookie('session_token');
+            deleteCookie('user_role');
+            deleteCookie('username');
+            window.location.href = 'login.html';
+          });
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

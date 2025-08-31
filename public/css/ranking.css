@@ -1,0 +1,536 @@
+/* Estilos específicos para a página de ranking */
+
+/* Header do Ranking */
+.ranking-header {
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.back-btn {
+    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    color: #00ff88;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.back-btn:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: #00ff88;
+    transform: translateY(-1px);
+}
+
+.page-title {
+    margin: 0;
+    color: #ffc107;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+}
+
+.logout-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #f44336);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+/* Seção de Ranking */
+.ranking-section {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ranking-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.ranking-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.ranking-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: #ffc107;
+    font-size: 1.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+}
+
+.ranking-description {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Loading e Estados Vazios */
+.loading, .empty-ranking {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #ffc107;
+}
+
+.empty-ranking i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: rgba(255, 193, 7, 0.3);
+}
+
+.empty-ranking p {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.empty-ranking small {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Lista de Ranking */
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ranking-item:hover {
+    border-color: rgba(255, 193, 7, 0.4);
+    background: rgba(0, 0, 0, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.1);
+}
+
+.ranking-position {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.ranking-position.first {
+    background: linear-gradient(135deg, #ffd700, #ffb300);
+    color: #000;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.ranking-position.second {
+    background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+    color: #000;
+    box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+}
+
+.ranking-position.third {
+    background: linear-gradient(135deg, #cd7f32, #b8860b);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(205, 127, 50, 0.5);
+}
+
+.ranking-position.other {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 2px solid rgba(255, 193, 7, 0.3);
+}
+
+.ranking-user {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.user-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffc107;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+.user-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.user-invites {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+}
+
+.user-invites i {
+    color: #00ff88;
+}
+
+/* Minha Posição */
+.my-position {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+}
+
+.position-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.position-header h3 {
+    margin: 0;
+    color: #00ff88;
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.position-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.position-info {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.position-rank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rank-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.rank-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.position-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.share-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.share-btn:hover {
+    background: linear-gradient(135deg, #00ffaa, #00ff88);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+}
+
+/* Informações sobre o Ranking */
+.ranking-info {
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 12px;
+}
+
+.info-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.info-header h3 {
+    margin: 0;
+    color: #00ff88;
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    border-color: rgba(0, 255, 136, 0.4);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #00ff88;
+    flex-shrink: 0;
+}
+
+.info-text h4 {
+    margin: 0 0 0.5rem 0;
+    color: #00ff88;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.info-text p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        justify-content: center;
+    }
+    
+    .ranking-section,
+    .my-position,
+    .ranking-info {
+        padding: 1.5rem;
+    }
+    
+    .ranking-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .ranking-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .ranking-user {
+        align-items: center;
+    }
+    
+    .user-stats {
+        justify-content: center;
+    }
+    
+    .position-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .position-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .ranking-header,
+    .my-position,
+    .ranking-info {
+        padding: 1rem;
+    }
+    
+    .page-title {
+        font-size: 1.3rem;
+    }
+    
+    .ranking-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .ranking-position {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .user-name {
+        font-size: 1rem;
+    }
+    
+    .rank-number {
+        font-size: 2rem;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+    }
+    
+    .share-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
